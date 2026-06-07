@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 
 const createLog = (message) => ({
   id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -18,7 +18,7 @@ export const useSolarStore = create((set) => ({
   answeredQuiz: null,
   focusTarget: [0, 0, 0],
   planetPositions: {},
-  game: {
+    game: {
     activePlanetId: null,
     questionIndex: 0,
     wrongCount: 0,
@@ -28,6 +28,8 @@ export const useSolarStore = create((set) => ({
     status: 'playing',
     lastResult: null,
   },
+  uiVisible: true,
+  storyBookOpen: false,
   mission: {
     id: 0,
     status: 'idle',
@@ -112,7 +114,7 @@ export const useSolarStore = create((set) => ({
         wrongCount: state.game.activePlanetId === state.mission.targetId ? state.game.wrongCount : 0,
         explodedPlanetId: null,
         lastResult: null,
-        status: 'quiz',
+        status: 'playing',
       },
       mission: {
         ...state.mission,
@@ -125,7 +127,7 @@ export const useSolarStore = create((set) => ({
         autopilot: false,
         log: [
           createLog(`Tàu đã đáp thành công xuống ${state.mission.targetId.toUpperCase()}.`),
-          createLog('Mở bảng trắc nghiệm của hành tinh.'),
+          createLog('Có thể khám phá Thử thách hoặc Kể chuyện trong bảng thông tin.'),
           ...state.mission.log,
         ].slice(0, 8),
       },
@@ -294,8 +296,24 @@ export const useSolarStore = create((set) => ({
     })),
   toggleOrbits: () => set((state) => ({ showOrbits: !state.showOrbits })),
   toggleLabels: () => set((state) => ({ showLabels: !state.showLabels })),
+  toggleUI: () => set((state) => ({ uiVisible: !state.uiVisible })),
   toggleQuiz: () => set((state) => ({ quizOpen: !state.quizOpen })),
   answerQuiz: (answeredQuiz) => set({ answeredQuiz }),
+  openQuiz: () => set((state) => {
+    // Chỉ mở nếu đang có selectedPlanetId
+    if (state.selectedPlanetId) {
+      return {
+        game: {
+          ...state.game,
+          activePlanetId: state.selectedPlanetId,
+          status: 'quiz',
+        }
+      };
+    }
+    return state;
+  }),
+  openStoryBook: () => set({ storyBookOpen: true }),
+  closeStoryBook: () => set({ storyBookOpen: false }),
 }));
 
 

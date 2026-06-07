@@ -1,0 +1,240 @@
+.storybook-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 6, 12, 0.85);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
+.storybook-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.storybook-wrapper {
+  perspective: 3500px;
+  width: min(95vw, 1300px);
+  height: min(85vh, 850px);
+}
+
+.book-3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(20deg) rotateY(-15deg) scale(0.6) translateY(200px);
+  transition: transform 1.2s cubic-bezier(0.25, 1, 0.35, 1);
+}
+
+.storybook-overlay.open .book-3d {
+  transform: rotateX(0deg) rotateY(0deg) scale(1) translateY(0);
+}
+
+.book-page {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 1.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  border-radius: 4px 20px 20px 4px;
+}
+
+.book-page-front,
+.book-page-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.book-page-back {
+  transform: rotateY(180deg);
+  border-radius: 20px 4px 4px 20px;
+}
+
+/* Front Cover */
+.cover-front {
+  background: radial-gradient(circle at center, #522713 0%, #291206 100%);
+  border: 12px solid #1a0a03;
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.9), inset 0 0 10px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #e0b976;
+}
+
+.cover-front h1 {
+  font-family: "Lora", "Merriweather", "Playfair Display", "Times New Roman", serif;
+  font-size: 54px;
+  margin: 0;
+  text-shadow: 2px 4px 15px rgba(0, 0, 0, 0.9);
+  border-bottom: 2px solid #e0b976;
+  padding-bottom: 15px;
+}
+
+.cover-front p {
+  font-family: "Lora", "Merriweather", "Playfair Display", "Times New Roman", serif;
+  font-size: 24px;
+  font-style: italic;
+  margin-top: 25px;
+  opacity: 0.85;
+}
+
+/* Back of the Cover (Left side when open) */
+.cover-back {
+  background: #3e1b11;
+  background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 3px, transparent 3px, transparent 6px);
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.95);
+  border: 15px solid #2b1105;
+}
+
+/* The Paper Pages */
+.paper-front,
+.paper-back {
+  background-color: #f1e4c3;
+  background-image: 
+    linear-gradient(to right, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 6%, rgba(0,0,0,0) 94%, rgba(0,0,0,0.06) 100%),
+    radial-gradient(circle at center, transparent 40%, rgba(139, 90, 43, 0.15) 100%);
+  box-shadow: inset 0 0 40px rgba(139, 90, 43, 0.2);
+  padding: 80px 70px;
+  color: #2c1a10;
+}
+
+.paper-back {
+  box-shadow: inset 0 0 40px rgba(139, 90, 43, 0.2), inset -15px 0 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Book Spine Shadow */
+.book-page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.4), transparent);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Page Content Typography */
+.story-title {
+  font-family: "Lora", "Merriweather", "Playfair Display", "Times New Roman", serif;
+  font-size: 42px;
+  border-bottom: 2px solid rgba(139, 90, 43, 0.4);
+  padding-bottom: 20px;
+  margin-top: 0;
+  margin-bottom: 35px;
+  color: #3b1e0f;
+  text-align: center;
+  font-weight: 700;
+}
+
+.story-content p {
+  font-family: "Lora", "Merriweather", "Playfair Display", "Times New Roman", serif;
+  font-size: 21px;
+  line-height: 1.85;
+  margin-bottom: 28px;
+  text-align: justify;
+  color: #2c1a10;
+  text-shadow: 0 1px 1px rgba(255,255,255,0.3);
+}
+
+/* Sketch Page Styling */
+.sketch-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sketch-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+}
+
+.planet-sketch {
+  width: 75%;
+  height: auto;
+  border-radius: 50%;
+  filter: grayscale(100%) contrast(150%) brightness(1.2) sepia(80%) hue-rotate(-20deg);
+  mix-blend-mode: multiply;
+  opacity: 0.85;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+  border: 4px solid rgba(139, 90, 43, 0.4);
+}
+
+.sketch-caption {
+  font-family: "Lora", "Merriweather", "Playfair Display", "Times New Roman", serif;
+  font-style: italic;
+  font-size: 18px;
+  margin-top: 30px;
+  color: #4a2b16;
+  border-top: 1px solid rgba(139, 90, 43, 0.4);
+  padding-top: 10px;
+}
+
+/* Z-indexing and Flipping (Pure 3D Native Sorting) */
+/* 
+   CRITICAL FIX: We MUST explicitly declare rotateY(0deg) before translateZ 
+   in the base state to match the flipped state's transform signature.
+   If they don't match, CSS falls back to Matrix Interpolation which causes 
+   a clunky, collapsed rotation ("khận khận") instead of a smooth arc.
+*/
+.page-cover       { transform: rotateY(0deg) translateZ(6px); transition: transform 1.8s cubic-bezier(0.645, 0.045, 0.355, 1) 0.5s; z-index: auto; }
+.page-flip-1      { transform: rotateY(0deg) translateZ(5px); transition: transform 1.6s cubic-bezier(0.645, 0.045, 0.355, 1) 0.4s; z-index: auto; }
+.page-flip-2      { transform: rotateY(0deg) translateZ(4px); transition: transform 1.5s cubic-bezier(0.645, 0.045, 0.355, 1) 0.3s; z-index: auto; }
+.page-flip-3      { transform: rotateY(0deg) translateZ(3px); transition: transform 1.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s; z-index: auto; }
+.page-flip-4      { transform: rotateY(0deg) translateZ(2px); transition: transform 1.3s cubic-bezier(0.645, 0.045, 0.355, 1) 0.1s; z-index: auto; }
+.page-flip-5      { transform: rotateY(0deg) translateZ(1px); transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1) 0.05s; z-index: auto;}
+.page-flip-6      { transform: rotateY(0deg) translateZ(0px); transition: transform 1.1s cubic-bezier(0.645, 0.045, 0.355, 1) 0s; z-index: auto; }
+.page-content     { transform: rotateY(0deg) translateZ(-1px); z-index: auto; }
+.page-back-cover  { transform: rotateY(0deg) translateZ(-2px); z-index: auto; }
+
+/* Flipped State (Opening animation) */
+.book-3d.flipped .page-cover  { transform: rotateY(-180deg) translateZ(6px); transition: transform 2.2s cubic-bezier(0.645, 0.045, 0.355, 1) 0s; }
+.book-3d.flipped .page-flip-1 { transform: rotateY(-180deg) translateZ(5px); transition: transform 2.0s cubic-bezier(0.645, 0.045, 0.355, 1) 0.1s; }
+.book-3d.flipped .page-flip-2 { transform: rotateY(-180deg) translateZ(4px); transition: transform 1.8s cubic-bezier(0.645, 0.045, 0.355, 1) 0.2s; }
+.book-3d.flipped .page-flip-3 { transform: rotateY(-180deg) translateZ(3px); transition: transform 1.6s cubic-bezier(0.645, 0.045, 0.355, 1) 0.3s; }
+.book-3d.flipped .page-flip-4 { transform: rotateY(-180deg) translateZ(2px); transition: transform 1.4s cubic-bezier(0.645, 0.045, 0.355, 1) 0.4s; }
+.book-3d.flipped .page-flip-5 { transform: rotateY(-180deg) translateZ(1px); transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1) 0.5s; }
+.book-3d.flipped .page-flip-6 { transform: rotateY(-180deg) translateZ(0px); transition: transform 1.0s cubic-bezier(0.645, 0.045, 0.355, 1) 0.6s; }
+
+/* Close Button */
+.close-book-btn {
+  position: absolute;
+  top: 40px;
+  right: 50px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  font-size: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 2001;
+}
+
+.close-book-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}

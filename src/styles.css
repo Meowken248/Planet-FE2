@@ -1,4 +1,4 @@
-﻿* {
+* {
   box-sizing: border-box;
 }
 
@@ -95,10 +95,81 @@ input,
 .quiz-panel,
 .mission-control,
 .progress-tracker {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(6, 9, 18, 0.72);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(145deg, rgba(20, 25, 35, 0.6), rgba(6, 9, 18, 0.75));
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(24px) saturate(140%);
+  border-radius: 16px;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+
+.control-panel:hover,
+.planet-list:hover,
+.info-panel:hover,
+.compare-strip:hover,
+.quiz-panel:hover,
+.mission-control:hover,
+.progress-tracker:hover {
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.ui-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              filter 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+  filter: blur(0px);
+  transform: scale(1);
+  z-index: 10;
+}
+
+.ui-container.hidden {
+  opacity: 0;
+  filter: blur(12px);
+  transform: scale(1.05);
+  pointer-events: none;
+}
+
+.ui-toggle-btn {
+  position: fixed;
+  z-index: 100;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(129, 209, 255, 0.15);
+  backdrop-filter: blur(16px);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
+}
+
+.ui-toggle-btn:hover {
+  background: rgba(86, 163, 222, 0.35);
+  transform: translateX(-50%) translateY(-2px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(118, 221, 255, 0.3);
+  color: #fff;
+}
+
+.ui-toggle-btn:active {
+  transform: translateX(-50%) scale(0.95);
+}
+
+.ui-toggle-btn.is-hidden {
+  background: rgba(255, 111, 91, 0.15);
+  border-color: rgba(255, 111, 91, 0.3);
+  color: #ffb1a6;
 }
 
 .progress-tracker {
@@ -186,16 +257,26 @@ input,
 .quiz-options button {
   min-height: 36px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.72);
+  transition: all 0.2s ease;
+}
+
+.segmented button:hover,
+.toggle-row button:hover,
+.quiz-options button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  transform: translateY(-1px);
 }
 
 .segmented button.active,
 .toggle-row button.active,
 .quiz-options button.active {
   border-color: rgba(129, 209, 255, 0.64);
-  background: rgba(86, 163, 222, 0.26);
+  background: linear-gradient(135deg, rgba(86, 163, 222, 0.3), rgba(129, 209, 255, 0.15));
+  box-shadow: 0 4px 12px rgba(86, 163, 222, 0.2);
   color: #ffffff;
 }
 
@@ -239,10 +320,17 @@ input,
   gap: 10px;
   min-height: 54px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 12px;
   background: transparent;
   color: #ffffff;
   text-align: left;
+  transition: all 0.25s ease;
+}
+
+.planet-list button.active,
+.planet-list button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(4px);
 }
 
 .planet-list em {
@@ -256,10 +344,7 @@ input,
   font-weight: 900;
 }
 
-.planet-list button.active,
-.planet-list button:hover {
-  background: rgba(255, 255, 255, 0.09);
-}
+
 
 .planet-list strong {
   display: block;
@@ -409,11 +494,52 @@ input,
 }
 
 .fact-row span {
-  padding: 6px 8px;
-  border-radius: 999px;
-  background: rgba(129, 209, 255, 0.12);
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
   color: rgba(220, 241, 255, 0.92);
   font-size: 12px;
+}
+
+.info-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.action-btn.story-btn:hover {
+  background: rgba(255, 207, 102, 0.2);
+  border-color: rgba(255, 207, 102, 0.5);
+  color: #ffcf66;
+}
+
+.action-btn.quiz-btn:hover {
+  background: rgba(166, 255, 209, 0.2);
+  border-color: rgba(166, 255, 209, 0.5);
+  color: #a6ffd1;
 }
 
 .compare-strip {
@@ -439,15 +565,17 @@ input,
   min-width: 0;
   min-height: 54px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 10px;
   background: transparent;
   color: rgba(255, 255, 255, 0.68);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .compare-strip button.active,
 .compare-strip button:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
+  transform: translateY(-4px);
 }
 
 .compare-strip button.completed {
@@ -753,13 +881,20 @@ input,
 .mission-actions button {
   min-height: 40px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
+  transition: all 0.2s ease;
+}
+
+.mission-actions button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .mission-actions button:disabled {
-  cursor: none;
+  cursor: not-allowed;
   opacity: 0.42;
 }
 
