@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
@@ -11,6 +11,8 @@ const solarOrigin = new THREE.Vector3(0, -0.8, 0);
 const flightUp = new THREE.Vector3(0, 1, 0);
 
 
+const tempNormal = new THREE.Vector3();
+
 function getSurfaceNormal(planetPosition, target) {
   target.copy(planetPosition).sub(solarOrigin);
   if (target.lengthSq() < 0.01) {
@@ -21,7 +23,7 @@ function getSurfaceNormal(planetPosition, target) {
 
 function getDockingPoint(planetId, planetPosition, target) {
   const planet = planetMap[planetId] || planetMap.earth;
-  const normal = getSurfaceNormal(planetPosition, target);
+  const normal = getSurfaceNormal(planetPosition, tempNormal);
   const landingOffset = Math.max(0.045, planet.radius * 0.045);
   const radius = planet ? planet.radius + landingOffset : 1.05;
   return target.copy(planetPosition).addScaledVector(normal, radius);
@@ -32,20 +34,10 @@ function getFlightPoint(start, end, progress, target) {
   const distance = start.distanceTo(end);
   const arcHeight = Math.max(0.65, Math.min(4.8, distance * 0.16));
 
-  if (t < 0.72) {
-    const arcT = THREE.MathUtils.smoothstep(t / 0.72, 0, 1);
-    return target
-      .copy(start)
-      .lerp(end, arcT * 0.82)
-      .addScaledVector(flightUp, Math.sin(arcT * Math.PI) * arcHeight);
-  }
-
-  const homeT = THREE.MathUtils.smoothstep((t - 0.72) / 0.28, 0, 1);
   return target
     .copy(start)
-    .lerp(end, 0.82)
-    .addScaledVector(flightUp, Math.sin(0.82 * Math.PI) * arcHeight)
-    .lerp(end, homeT);
+    .lerp(end, t)
+    .addScaledVector(flightUp, Math.sin(t * Math.PI) * arcHeight);
 }
 export default function Spacecraft() {
   const shipRef = useRef();
