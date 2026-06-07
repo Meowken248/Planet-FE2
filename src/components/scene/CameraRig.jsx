@@ -10,19 +10,27 @@ export default function CameraRig() {
   const controlsRef = useRef();
   const isFlyingRef = useRef(true);
   const previousSelectionRef = useRef(null);
+  const previousTourActiveRef = useRef(false);
+  const tourStartTimeRef = useRef(0);
   const flightRef = useRef({
     elapsed: 0,
-    duration: 3.8,
+    duration: 6.2,
     startPosition: new THREE.Vector3(),
     startTarget: new THREE.Vector3(),
   });
   const { camera } = useThree();
   const followingPlanetId = useSolarStore((state) => state.followingPlanetId);
+  const cinematicTour = useSolarStore((state) => state.cinematicTour);
 
   const target = useMemo(() => new THREE.Vector3(), []);
   const desiredPosition = useMemo(() => new THREE.Vector3(), []);
   const viewDirection = useMemo(() => new THREE.Vector3(), []);
   const shipRadial = useMemo(() => new THREE.Vector3(), []);
+  const tourTarget = useMemo(() => new THREE.Vector3(), []);
+  const tourPosition = useMemo(() => new THREE.Vector3(), []);
+
+  const tourTargetIds = ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
+  const tourStepDuration = 7.2;
 
   const focusAngles = {
     saturn: -0.95,
@@ -37,8 +45,54 @@ export default function CameraRig() {
     camera.lookAt(0, 0, 0);
   }, [camera]);
 
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
     const currentMission = useSolarStore.getState().mission;
+
+    if (cinematicTour.active && controlsRef.current) {
+      if (!previousTourActiveRef.current) {
+        previousTourActiveRef.current = true;
+        tourStartTimeRef.current = clock.elapsedTime;
+      }
+
+      const tourIndex = cinematicTour.index % tourTargetIds.length;
+      const targetId = tourTargetIds[tourIndex];
+      const tourElapsed = clock.elapsedTime - tourStartTimeRef.current;
+      const nextIndex = Math.floor(tourElapsed / tourStepDuration) % tourTargetIds.length;
+
+      if (nextIndex !== tourIndex) {
+        useSolarStore.getState().setCinematicTourIndex(nextIndex);
+      }
+
+      if (targetId === 'sun') {
+        tourTarget.set(0, -0.8, 0);
+        tourPosition.set(
+          Math.cos(clock.elapsedTime * 0.12) * 10.5,
+          4.5 + Math.sin(clock.elapsedTime * 0.18) * 0.9,
+          Math.sin(clock.elapsedTime * 0.12) * 10.5
+        );
+      } else {
+        const selected = planetMap[targetId];
+        const planetPosition = useSolarStore.getState().planetPositions[targetId];
+
+        if (selected && planetPosition) {
+          const radius = selected.radius * 1.55;
+          const angle = (focusAngles[targetId] ?? 0.72) + Math.sin(clock.elapsedTime * 0.16) * 0.22;
+          const distance = Math.max(5.2, radius * 4.45);
+          tourTarget.set(planetPosition[0], planetPosition[1], planetPosition[2]);
+          tourPosition.set(
+            planetPosition[0] + Math.cos(angle) * distance,
+            planetPosition[1] + Math.max(1.3, radius * 1.05),
+            planetPosition[2] + Math.sin(angle) * distance
+          );
+        }
+      }
+
+      camera.position.lerp(tourPosition, 0.018);
+      controlsRef.current.target.lerp(tourTarget, 0.032);
+      controlsRef.current.update();
+      return;
+    }
+    previousTourActiveRef.current = false;
 
     if (currentMission.autopilot && controlsRef.current) {
       const ship = currentMission.spacecraftPosition;
@@ -82,9 +136,10 @@ export default function CameraRig() {
 
     if (selected && planetPosition) {
       const visualRadius = selected.radius * 1.55;
-      const focusDistance = Math.max(3.4, visualRadius * 3.35);
-      const focusHeight = Math.max(0.85, visualRadius * 0.9);
-      const focusAngle = focusAngles[followingPlanetId] ?? 0.72;
+      const focusDistance = Math.max(4.2, visualRadius * 4.15);
+      const focusHeight = Math.max(1.15, visualRadius * 0.92);
+      const cinematicDrift = Math.sin(clock.elapsedTime * 0.18) * 0.16;
+      const focusAngle = (focusAngles[followingPlanetId] ?? 0.72) + cinematicDrift;
       viewDirection.set(Math.cos(focusAngle), 0, Math.sin(focusAngle)).normalize();
 
       target.set(planetPosition[0], planetPosition[1], planetPosition[2]);
@@ -117,8 +172,8 @@ export default function CameraRig() {
       return;
     }
 
-    camera.position.lerp(desiredPosition, 0.04);
-    controlsRef.current.target.lerp(target, 0.07);
+    camera.position.lerp(desiredPosition, 0.014);
+    controlsRef.current.target.lerp(target, 0.028);
     controlsRef.current.update();
   });
 
@@ -127,19 +182,27 @@ export default function CameraRig() {
       ref={controlsRef}
       makeDefault
       enableDamping
-      dampingFactor={0.075}
-      rotateSpeed={0.58}
-      zoomSpeed={0.82}
-      panSpeed={0.68}
+      dampingFactor={0.095}
+      rotateSpeed={0.48}
+      zoomSpeed={0.72}
+      panSpeed={0.58}
       minDistance={1.8}
       maxDistance={120}
       enablePan
       onStart={() => {
         useSolarStore.getState().disableMissionAutopilot();
+        useSolarStore.getState().stopCinematicTour();
       }}
     />
   );
 }
+
+
+
+
+
+
+
 
 
 

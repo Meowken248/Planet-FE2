@@ -1,4 +1,4 @@
-* {
+﻿* {
   box-sizing: border-box;
 }
 
@@ -1100,3 +1100,178 @@ input,
   backdrop-filter: blur(8px);
 }
 
+
+/* 3D Planet Profile */
+.profile-panel {
+  overflow: hidden;
+  padding: 0;
+  border-color: rgba(129, 209, 255, 0.18);
+  background:
+    linear-gradient(145deg, rgba(17, 24, 38, 0.78), rgba(5, 8, 16, 0.86)),
+    radial-gradient(circle at 16% 8%, rgba(129, 209, 255, 0.14), transparent 34%);
+}
+
+.profile-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, black, transparent 74%);
+  pointer-events: none;
+}
+
+.profile-topline {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 0;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.profile-topline span {
+  color: #9ee7ff;
+}
+
+.profile-topline strong {
+  color: rgba(166, 255, 209, 0.86);
+}
+
+.profile-heading {
+  position: relative;
+  z-index: 1;
+  padding: 14px 16px 0;
+}
+
+.profile-heading .planet-orb {
+  width: 64px;
+  height: 64px;
+  box-shadow:
+    inset -10px -8px 16px rgba(0, 0, 0, 0.46),
+    0 0 24px rgba(129, 209, 255, 0.16);
+}
+
+.profile-heading h2 {
+  font-size: 36px;
+}
+
+.scan-readout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 8px;
+  margin: 16px 16px 0;
+}
+
+.scan-readout div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.scan-readout strong {
+  color: #a6ffd1;
+}
+
+.scan-readout i {
+  display: block;
+  height: 7px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #76ddff, #a6ffd1);
+  box-shadow: 0 0 18px rgba(118, 221, 255, 0.42);
+  transition: width 0.35s ease;
+}
+
+.profile-panel .description {
+  position: relative;
+  z-index: 1;
+  margin: 16px 16px 0;
+  color: rgba(235, 245, 255, 0.74);
+}
+
+.profile-stats {
+  position: relative;
+  z-index: 1;
+  margin: 16px 16px 0;
+}
+
+.profile-stats div {
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  background: rgba(255, 255, 255, 0.065);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.profile-stats div:first-child {
+  grid-column: span 2;
+  min-height: 58px;
+  background: linear-gradient(135deg, rgba(118, 221, 255, 0.12), rgba(255, 255, 255, 0.055));
+}
+
+.profile-stats dt {
+  letter-spacing: 0.08em;
+  font-weight: 900;
+}
+
+.profile-stats dd {
+  font-weight: 800;
+}
+
+.profile-section-title {
+  position: relative;
+  z-index: 1;
+  margin: 15px 16px 0;
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.profile-facts {
+  position: relative;
+  z-index: 1;
+  margin: 10px 16px 0;
+}
+
+.profile-facts span {
+  border: 1px solid rgba(129, 209, 255, 0.15);
+  border-radius: 999px;
+  background: rgba(129, 209, 255, 0.1);
+  color: rgba(226, 246, 255, 0.94);
+}
+
+.profile-panel .info-actions {
+  position: relative;
+  z-index: 1;
+  margin: 18px 16px 16px;
+}
+
+.profile-panel.jupiter {
+  border-color: rgba(255, 217, 160, 0.24);
+}
+
+.profile-panel.saturn {
+  border-color: rgba(244, 214, 138, 0.28);
+}
+
+.profile-panel.earth {
+  border-color: rgba(104, 216, 255, 0.28);
+}
+
+.profile-panel.mars {
+  border-color: rgba(255, 147, 108, 0.28);
+}

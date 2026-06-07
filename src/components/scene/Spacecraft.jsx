@@ -1,5 +1,5 @@
-import React from 'react';
-import { useGLTF } from '@react-three/drei';
+﻿import React from 'react';
+import { Trail, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
@@ -9,9 +9,66 @@ import { useSolarStore } from '../../store/useSolarStore.js';
 const missionDuration = 9.5;
 const solarOrigin = new THREE.Vector3(0, -0.8, 0);
 const flightUp = new THREE.Vector3(0, 1, 0);
-
-
 const tempNormal = new THREE.Vector3();
+
+function EngineGlow({ activeRef }) {
+  const glowRef = useRef();
+  const haloRef = useRef();
+
+  useFrame(({ clock }) => {
+    const intensity = activeRef.current || 0;
+    const pulse = 0.92 + Math.sin(clock.elapsedTime * 9) * 0.08;
+
+    if (glowRef.current) {
+      glowRef.current.scale.setScalar((6 + intensity * 5) * pulse);
+      glowRef.current.material.opacity = 0.1 + intensity * 0.18;
+    }
+
+    if (haloRef.current) {
+      haloRef.current.scale.setScalar((11 + intensity * 7) * pulse);
+      haloRef.current.material.opacity = 0.025 + intensity * 0.055;
+    }
+  });
+
+  return (
+    <group>
+      <Trail
+        width={0.56}
+        length={6}
+        decay={3.2}
+        local={false}
+        stride={0.015}
+        interval={1}
+        color="#6feaff"
+        attenuation={(width) => width * width}
+      >
+        <mesh ref={glowRef} position={[0, 0, -42]}>
+          <sphereGeometry args={[0.12, 24, 24]} />
+          <meshBasicMaterial
+            color="#8eefff"
+            transparent
+            opacity={0.16}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            toneMapped={false}
+          />
+        </mesh>
+      </Trail>
+
+      <mesh ref={haloRef} position={[0, 0, -45]}>
+        <sphereGeometry args={[0.1, 24, 24]} />
+        <meshBasicMaterial
+          color="#4abfff"
+          transparent
+          opacity={0.05}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+}
 
 function getSurfaceNormal(planetPosition, target) {
   target.copy(planetPosition).sub(solarOrigin);
@@ -39,12 +96,14 @@ function getFlightPoint(start, end, progress, target) {
     .lerp(end, t)
     .addScaledVector(flightUp, Math.sin(t * Math.PI) * arcHeight);
 }
+
 export default function Spacecraft() {
   const shipRef = useRef();
   const modelRef = useRef();
   const missionIdRef = useRef(0);
   const localProgressRef = useRef(0);
   const telemetryTimerRef = useRef(0);
+  const engineIntensityRef = useRef(0);
 
   const startRef = useRef(new THREE.Vector3());
   const endRef = useRef(new THREE.Vector3());
@@ -75,9 +134,7 @@ export default function Spacecraft() {
     const homePlanetId = state.spacecraftHomePlanetId || 'earth';
     const homePosition = state.planetPositions[homePlanetId] || state.planetPositions.earth;
 
-    if (!homePosition) {
-      return;
-    }
+    if (!homePosition) return;
 
     if (mission.status === 'idle') {
       tempHomePosition.fromArray(homePosition);
@@ -85,6 +142,7 @@ export default function Spacecraft() {
       targetNormal.copy(homeDock).sub(tempHomePosition).normalize();
       position.copy(homeDock);
       direction.copy(targetNormal);
+      engineIntensityRef.current = THREE.MathUtils.lerp(engineIntensityRef.current, 0.08, 0.08);
 
       if (shipRef.current) {
         shipRef.current.position.copy(position);
@@ -93,6 +151,7 @@ export default function Spacecraft() {
 
       if (modelRef.current) {
         modelRef.current.rotation.y += delta * 0.02;
+        modelRef.current.rotation.z = THREE.MathUtils.lerp(modelRef.current.rotation.z, 0, 0.08);
       }
 
       const spacecraftPosition = state.mission.spacecraftPosition;
@@ -104,9 +163,7 @@ export default function Spacecraft() {
 
     const targetPlanetId = mission.targetId;
     const targetPosition = state.planetPositions[targetPlanetId];
-    if (!targetPosition) {
-      return;
-    }
+    if (!targetPosition) return;
 
     tempTargetPosition.fromArray(targetPosition);
     getDockingPoint(targetPlanetId, tempTargetPosition, targetDock);
@@ -126,6 +183,9 @@ export default function Spacecraft() {
       localProgressRef.current = Math.min(1, localProgressRef.current + delta / missionDuration);
     }
 
+    const targetEngine = mission.status === 'launch' ? 0.82 : mission.status === 'cruise' ? 0.46 : mission.status === 'scan' ? 0.12 : 0.08;
+    engineIntensityRef.current = THREE.MathUtils.lerp(engineIntensityRef.current, targetEngine, 0.08);
+
     const rawProgress = localProgressRef.current;
     const progress = THREE.MathUtils.smoothstep(rawProgress, 0, 1);
     endRef.current.copy(targetDock);
@@ -141,7 +201,9 @@ export default function Spacecraft() {
     }
 
     if (modelRef.current) {
-      modelRef.current.rotation.y += delta * 0.12;
+      const banking = Math.sin(progress * Math.PI) * 0.1;
+      modelRef.current.rotation.y += delta * (0.06 + engineIntensityRef.current * 0.06);
+      modelRef.current.rotation.z = THREE.MathUtils.lerp(modelRef.current.rotation.z, banking, 0.06);
     }
 
     const spacecraftPosition = state.mission.spacecraftPosition;
@@ -180,18 +242,13 @@ export default function Spacecraft() {
       <group ref={modelRef} rotation={[0, Math.PI, 0]}>
         <primitive object={shipModel} />
       </group>
-      <pointLight color="#76ddff" intensity={1.6} distance={7} />
-      <mesh position={[0, 0, -44]} scale={24}>
-        <sphereGeometry args={[0.16, 24, 24]} />
-        <meshBasicMaterial color="#ffca62" transparent opacity={0.78} />
-      </mesh>
+      <pointLight color="#76ddff" intensity={1.05} distance={5} />
+      <EngineGlow activeRef={engineIntensityRef} />
     </group>
   );
 }
 
 useGLTF.preload('/models/cassini.glb');
-
-
 
 
 

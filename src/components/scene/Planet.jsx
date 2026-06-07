@@ -6,6 +6,8 @@ import * as THREE from 'three';
 import { useSolarStore } from '../../store/useSolarStore.js';
 import OrbitRing from './OrbitRing.jsx';
 import Moon from './Moon.jsx';
+import Atmosphere from './Atmosphere.jsx';
+import SaturnRings from './SaturnRings.jsx';
 
 const orbitStyles = {
   mercury: { color: '#b8aaa0', tilt: -0.02 },
@@ -121,8 +123,10 @@ export default function Planet({ planet }) {
               }}
             >
               <sphereGeometry args={[planet.radius, 96, 96]} />
-              <meshStandardMaterial map={texture} roughness={0.82} metalness={0.02} />
+              <meshStandardMaterial map={texture} roughness={0.76} metalness={0.015} emissive={isSelected ? '#1b2438' : '#000000'} emissiveIntensity={isSelected ? 0.12 : 0.02} />
             </mesh>
+
+            <Atmosphere planetId={planet.id} radius={planet.radius} active={isSelected || isFollowing} />
 
             {planet.clouds && (
               <mesh ref={cloudRef}>
@@ -137,7 +141,16 @@ export default function Planet({ planet }) {
               </mesh>
             )}
 
-            {planet.rings && (
+            {planet.rings && planet.id === 'saturn' && (
+              <SaturnRings
+                radius={planet.radius}
+                textureUrl={planet.rings}
+                active={isSelected || isFollowing}
+                speed={speed}
+              />
+            )}
+
+            {planet.rings && planet.id !== 'saturn' && (
               <mesh ref={ringRef} rotation-x={Math.PI / 2.45}>
                 <ringGeometry args={[planet.radius * 1.35, planet.radius * 2.22, 192]} />
                 <meshBasicMaterial
@@ -184,6 +197,8 @@ export default function Planet({ planet }) {
     </>
   );
 }
+
+
 
 
 

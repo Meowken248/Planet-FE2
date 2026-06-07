@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 
 const createLog = (message) => ({
   id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -30,6 +30,10 @@ export const useSolarStore = create((set) => ({
   },
   uiVisible: true,
   storyBookOpen: false,
+  cinematicTour: {
+    active: false,
+    index: 0,
+  },
   mission: {
     id: 0,
     status: 'idle',
@@ -47,7 +51,7 @@ export const useSolarStore = create((set) => ({
     ],
   },
   selectPlanet: (selectedPlanetId) => set({ selectedPlanetId, followingPlanetId: selectedPlanetId }),
-  stopFollowingPlanet: () => set({ followingPlanetId: null }),
+  stopFollowingPlanet: () => set({ followingPlanetId: null, cinematicTour: { active: false, index: 0 } }),
   setMode: (mode) => set({ mode }),
   setSpeed: (speed) => set({ speed }),
   setFocusTarget: (focusTarget) => set({ focusTarget }),
@@ -314,7 +318,30 @@ export const useSolarStore = create((set) => ({
   }),
   openStoryBook: () => set({ storyBookOpen: true }),
   closeStoryBook: () => set({ storyBookOpen: false }),
+  startCinematicTour: () =>
+    set((state) => ({
+      followingPlanetId: null,
+      cinematicTour: { active: true, index: 0 },
+      mission: {
+        ...state.mission,
+        autopilot: false,
+        log: [createLog('Bắt đầu chế độ tham quan điện ảnh.'), ...state.mission.log].slice(0, 8),
+      },
+    })),
+  stopCinematicTour: () => set({ cinematicTour: { active: false, index: 0 } }),
+  setCinematicTourIndex: (index) =>
+    set((state) => {
+      const targetIds = ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
+      const targetId = targetIds[index % targetIds.length];
+
+      return {
+        selectedPlanetId: targetId === 'sun' ? state.selectedPlanetId : targetId,
+        followingPlanetId: targetId === 'sun' ? null : targetId,
+        cinematicTour: { active: true, index: index % targetIds.length },
+      };
+    }),
 }));
+
 
 
 

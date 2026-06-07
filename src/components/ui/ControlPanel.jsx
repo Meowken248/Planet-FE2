@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useSolarStore } from '../../store/useSolarStore.js';
 
 export default function ControlPanel() {
@@ -6,11 +6,14 @@ export default function ControlPanel() {
   const speed = useSolarStore((state) => state.speed);
   const showOrbits = useSolarStore((state) => state.showOrbits);
   const showLabels = useSolarStore((state) => state.showLabels);
+  const cinematicTour = useSolarStore((state) => state.cinematicTour);
   const setMode = useSolarStore((state) => state.setMode);
   const setSpeed = useSolarStore((state) => state.setSpeed);
   const toggleOrbits = useSolarStore((state) => state.toggleOrbits);
   const toggleLabels = useSolarStore((state) => state.toggleLabels);
   const restartGame = useSolarStore((state) => state.restartGame);
+  const startCinematicTour = useSolarStore((state) => state.startCinematicTour);
+  const stopCinematicTour = useSolarStore((state) => state.stopCinematicTour);
 
   return (
     <section className="control-panel">
@@ -51,6 +54,13 @@ export default function ControlPanel() {
         <button type="button" className={showLabels ? 'active' : ''} onClick={toggleLabels}>
           Nhãn
         </button>
+        <button
+          type="button"
+          className={cinematicTour.active ? 'active' : ''}
+          onClick={cinematicTour.active ? stopCinematicTour : startCinematicTour}
+        >
+          Tham quan
+        </button>
         <button type="button" onClick={restartGame}>
           Chơi lại
         </button>
@@ -58,3 +68,4 @@ export default function ControlPanel() {
     </section>
   );
 }
+
