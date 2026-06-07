@@ -1,0 +1,967 @@
+﻿* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background: #03040a;
+  color: #f7f4ec;
+  cursor: none;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button,
+input,
+.planet-label button {
+  cursor: none;
+}
+
+.app-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, rgba(53, 76, 116, 0.18), transparent 42%), #03040a;
+}
+
+.solar-canvas {
+  position: fixed !important;
+  inset: 0;
+}
+
+.top-bar {
+  position: fixed;
+  z-index: 5;
+  top: 18px;
+  left: 22px;
+  right: 22px;
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) auto;
+  align-items: start;
+  gap: 18px;
+  pointer-events: none;
+}
+
+.top-bar > div,
+.control-panel,
+.planet-list,
+.info-panel,
+.compare-strip,
+.quiz-panel,
+.mission-control,
+.progress-tracker {
+  pointer-events: auto;
+}
+
+.top-bar p,
+.eyebrow {
+  margin: 0 0 5px;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.top-bar h1 {
+  margin: 0;
+  font-size: clamp(24px, 4vw, 56px);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.control-panel,
+.planet-list,
+.info-panel,
+.compare-strip,
+.quiz-panel,
+.mission-control,
+.progress-tracker {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(6, 9, 18, 0.72);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
+}
+
+.progress-tracker {
+  position: fixed;
+  z-index: 4;
+  top: 148px;
+  right: 22px;
+  width: min(390px, calc(100vw - 44px));
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.progress-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.progress-heading strong {
+  color: #a6ffd1;
+}
+
+.completion-bar {
+  height: 8px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.completion-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #76ddff, #a6ffd1);
+  box-shadow: 0 0 18px rgba(166, 255, 209, 0.42);
+  transition: width 260ms ease;
+}
+
+.completion-dots {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.completion-dots span {
+  display: grid;
+  place-items: center;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #a6ffd1;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.completion-dots span.done {
+  background: rgba(166, 255, 209, 0.18);
+  outline: 1px solid rgba(166, 255, 209, 0.38);
+}
+
+.control-panel {
+  display: grid;
+  min-width: min(560px, 54vw);
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.segmented,
+.toggle-row {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 6px;
+}
+
+.segmented button,
+.toggle-row button,
+.quiz-options button {
+  min-height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.segmented button.active,
+.toggle-row button.active,
+.quiz-options button.active {
+  border-color: rgba(129, 209, 255, 0.64);
+  background: rgba(86, 163, 222, 0.26);
+  color: #ffffff;
+}
+
+.speed-control {
+  display: grid;
+  grid-template-columns: auto minmax(140px, 1fr) 46px;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+}
+
+.speed-control input {
+  width: 100%;
+  accent-color: #81d1ff;
+}
+
+.speed-control strong {
+  text-align: right;
+  color: #ffffff;
+}
+
+.planet-list {
+  position: fixed;
+  z-index: 4;
+  top: 148px;
+  left: 22px;
+  display: grid;
+  width: min(320px, calc(100vw - 44px));
+  max-height: calc(100vh - 284px);
+  gap: 6px;
+  padding: 8px;
+  overflow: auto;
+  border-radius: 8px;
+}
+
+.planet-list button {
+  display: grid;
+  grid-template-columns: 28px 1fr 34px;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #ffffff;
+  text-align: left;
+}
+
+.planet-list em {
+  justify-self: end;
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: rgba(166, 255, 209, 0.14);
+  color: #a6ffd1;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.planet-list button.active,
+.planet-list button:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.planet-list strong {
+  display: block;
+  font-size: 14px;
+}
+
+.planet-list small {
+  display: block;
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.planet-dot,
+.planet-orb,
+.mini-planet {
+  display: inline-block;
+  border-radius: 999px;
+  background: #9ca3af;
+  box-shadow: inset -6px -5px 10px rgba(0, 0, 0, 0.38);
+}
+
+.planet-dot {
+  width: 18px;
+  height: 18px;
+  justify-self: center;
+}
+
+.planet-orb {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+}
+
+.mercury {
+  background: linear-gradient(135deg, #a89982, #4a4540);
+}
+
+.venus {
+  background: linear-gradient(135deg, #f3c46b, #8f5f32);
+}
+
+.earth {
+  background: linear-gradient(135deg, #2f8fdc, #184b94 45%, #38a169 48%, #d7f7ff);
+}
+
+.mars {
+  background: linear-gradient(135deg, #d8794a, #743221);
+}
+
+.jupiter {
+  background: linear-gradient(135deg, #e5c28c, #8e5b3a 38%, #f5d6a3 52%, #4f3424);
+}
+
+.saturn {
+  background: linear-gradient(135deg, #ecd6a2, #8a6b45);
+}
+
+.uranus {
+  background: linear-gradient(135deg, #b9f8f1, #5ea7b6);
+}
+
+.neptune {
+  background: linear-gradient(135deg, #386fea, #071e68);
+}
+
+.info-panel {
+  position: fixed;
+  z-index: 4;
+  right: 22px;
+  bottom: 104px;
+  width: min(390px, calc(100vw - 44px));
+  padding: 18px;
+  border-radius: 8px;
+}
+
+.info-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.info-heading h2 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.info-heading p,
+.description {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.description {
+  margin-top: 16px;
+}
+
+.scan-badge {
+  display: inline-flex;
+  margin-top: 14px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(166, 255, 209, 0.14);
+  color: #a6ffd1;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.planet-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0 0;
+}
+
+.planet-stats div {
+  min-height: 62px;
+  padding: 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.planet-stats dt {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.planet-stats dd {
+  margin: 5px 0 0;
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.fact-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.fact-row span {
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(129, 209, 255, 0.12);
+  color: rgba(220, 241, 255, 0.92);
+  font-size: 12px;
+}
+
+.compare-strip {
+  position: fixed;
+  z-index: 4;
+  right: 22px;
+  bottom: 22px;
+  left: 22px;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(74px, 1fr));
+  align-items: end;
+  gap: 4px;
+  min-height: 68px;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.compare-strip button {
+  display: grid;
+  justify-items: center;
+  align-items: end;
+  gap: 4px;
+  min-width: 0;
+  min-height: 54px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.compare-strip button.active,
+.compare-strip button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.compare-strip button.completed {
+  outline: 1px solid rgba(166, 255, 209, 0.34);
+  color: #a6ffd1;
+}
+
+.compare-strip small {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planet-label button {
+  min-width: 72px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(6, 9, 18, 0.62);
+  color: rgba(255, 255, 255, 0.78);
+  padding: 5px 9px;
+  font-size: 12px;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+
+.planet-label.is-selected button {
+  border-color: rgba(129, 209, 255, 0.84);
+  color: #ffffff;
+}
+
+.quiz-backdrop {
+  position: fixed;
+  z-index: 8;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.quiz-panel {
+  position: relative;
+  width: min(460px, 100%);
+  padding: 22px;
+  border-radius: 8px;
+}
+
+.quiz-panel h2 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.close-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.quiz-options {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.quiz-result {
+  margin: 14px 0 0;
+  color: #ffd3a6;
+  line-height: 1.45;
+}
+
+.quiz-result.good {
+  color: #a6ffd1;
+}
+
+.quiz-result.danger {
+  color: #ffb1a6;
+}
+
+.game-quiz-panel h2 {
+  margin-top: 4px;
+}
+
+.quiz-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.quiz-meta span {
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.game-question {
+  margin: 16px 0 0;
+  color: #ffffff;
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.four-options button {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.four-options strong {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(118, 221, 255, 0.16);
+  color: #aeeeff;
+}
+
+.complete-panel p {
+  color: rgba(255, 255, 255, 0.76);
+  line-height: 1.5;
+}
+
+.complete-panel .launch-button {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(255, 207, 102, 0.95), rgba(255, 118, 76, 0.9));
+  color: #16120a;
+  font-weight: 900;
+}
+
+.fail-backdrop {
+  background: rgba(24, 5, 8, 0.68);
+}
+
+.fail-panel {
+  border-color: rgba(255, 111, 91, 0.36);
+}
+
+.fail-panel h2 {
+  color: #ffb1a6;
+}
+
+.fail-panel p {
+  color: rgba(255, 230, 226, 0.82);
+  line-height: 1.5;
+}
+
+.fail-panel .launch-button {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #ffcf66, #ff6f5b);
+  color: #16120a;
+  font-weight: 900;
+}
+
+.mission-control {
+  position: fixed;
+  z-index: 4;
+  left: 22px;
+  bottom: 104px;
+  width: min(390px, calc(100vw - 44px));
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.mission-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.mission-header h2 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.mission-status {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.mission-status.launch,
+.mission-status.cruise {
+  background: rgba(118, 221, 255, 0.18);
+  color: #aeeeff;
+}
+
+.mission-status.scan {
+  background: rgba(166, 255, 209, 0.16);
+  color: #a6ffd1;
+}
+
+.target-selector {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.target-selector span {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.target-selector select {
+  min-height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  padding: 0 10px;
+  outline: none;
+}
+
+.target-selector select option {
+  background: #111827;
+  color: #ffffff;
+}
+
+.mission-progress {
+  height: 8px;
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mission-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #76ddff, #ffcf66, #a6ffd1);
+  box-shadow: 0 0 22px rgba(118, 221, 255, 0.55);
+  transition: width 160ms ease;
+}
+
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0 0;
+}
+
+.telemetry-grid div {
+  min-height: 58px;
+  padding: 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.telemetry-grid dt {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.telemetry-grid dd {
+  margin: 6px 0 0;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mission-actions {
+  display: grid;
+  grid-template-columns: 1fr 118px 72px;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.mission-actions button {
+  min-height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.mission-actions button:disabled {
+  cursor: none;
+  opacity: 0.42;
+}
+
+.mission-actions .launch-button {
+  border-color: rgba(255, 207, 102, 0.55);
+  background: linear-gradient(135deg, rgba(255, 207, 102, 0.95), rgba(255, 118, 76, 0.9));
+  color: #16120a;
+  font-weight: 900;
+}
+
+.mission-log {
+  display: grid;
+  gap: 6px;
+  max-height: 120px;
+  margin-top: 12px;
+  overflow: auto;
+  color: rgba(207, 244, 255, 0.82);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.mission-log p {
+  margin: 0;
+}
+
+.mission-log span {
+  margin-right: 8px;
+  color: rgba(255, 207, 102, 0.8);
+}
+
+.spaceship-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.cursor-ship,
+.cursor-trail-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform, opacity;
+}
+
+.cursor-ship {
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  filter: drop-shadow(0 0 9px rgba(115, 216, 255, 0.86));
+}
+
+.cursor-ship svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.cursor-trail-dot {
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(255, 239, 168, 0.95), rgba(116, 217, 255, 0.72) 42%, transparent 72%);
+  filter: blur(0.5px);
+}
+
+@media (max-width: 980px) {
+  .top-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .control-panel {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .planet-list {
+    top: 190px;
+    max-height: 34vh;
+  }
+
+  .progress-tracker {
+    top: 190px;
+    right: 14px;
+    width: min(360px, calc(100vw - 44px));
+  }
+
+  .info-panel {
+    right: 14px;
+    bottom: 96px;
+  }
+
+  .mission-control {
+    left: 14px;
+    bottom: 96px;
+    width: min(360px, calc(100vw - 44px));
+  }
+
+  .compare-strip {
+    grid-template-columns: repeat(4, minmax(60px, 1fr));
+    max-height: 96px;
+    overflow: auto;
+  }
+}
+
+@media (max-width: 680px) {
+  .top-bar {
+    top: 12px;
+    right: 12px;
+    left: 12px;
+    gap: 10px;
+  }
+
+  .top-bar h1 {
+    font-size: 28px;
+  }
+
+  .segmented,
+  .toggle-row {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .segmented {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .planet-list {
+    top: auto;
+    bottom: 188px;
+    left: 12px;
+    width: calc(100vw - 24px);
+    max-height: 144px;
+  }
+
+  .progress-tracker {
+    top: auto;
+    right: 12px;
+    left: 12px;
+    bottom: 260px;
+    width: auto;
+  }
+
+  .planet-list button {
+    min-height: 48px;
+  }
+
+  .info-panel {
+    right: 12px;
+    left: 12px;
+    bottom: 86px;
+    width: auto;
+    padding: 14px;
+  }
+
+  .mission-control {
+    right: 12px;
+    left: 12px;
+    bottom: 336px;
+    width: auto;
+    padding: 14px;
+  }
+
+  .mission-log {
+    max-height: 72px;
+  }
+
+  .info-heading h2 {
+    font-size: 28px;
+  }
+
+  .planet-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .planet-stats div {
+    min-height: 54px;
+  }
+
+  .compare-strip {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+  }
+}
+
+.moon-label span {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  padding: 3px 7px;
+  border: 1px solid rgba(210, 230, 255, 0.24);
+  border-radius: 999px;
+  background: rgba(6, 9, 18, 0.52);
+  color: rgba(234, 244, 255, 0.82);
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+
