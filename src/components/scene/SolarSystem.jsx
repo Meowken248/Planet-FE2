@@ -1,8 +1,9 @@
 import React from 'react';
 import { Environment, Preload, Stars } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { planets } from '../../data/planets.js';
+import { loadHorizonsEphemeris } from '../../services/horizonsEphemeris.js';
 import AsteroidBelt from './AsteroidBelt.jsx';
 import CameraRig from './CameraRig.jsx';
 import Planet from './Planet.jsx';
@@ -14,6 +15,28 @@ import { useSolarStore } from '../../store/useSolarStore.js';
 
 export default function SolarSystem() {
   const stopFollowingPlanet = useSolarStore((state) => state.stopFollowingPlanet);
+  const mode = useSolarStore((state) => state.mode);
+  const ephemerisStatus = useSolarStore((state) => state.ephemeris.status);
+
+  useEffect(() => {
+    if (mode !== 'realistic' || ephemerisStatus === 'ready' || ephemerisStatus === 'loading') return undefined;
+
+    const controller = new AbortController();
+    const store = useSolarStore.getState();
+    store.setEphemerisLoading();
+
+    loadHorizonsEphemeris({ signal: controller.signal })
+      .then((ephemeris) => {
+        useSolarStore.getState().setEphemerisData(ephemeris);
+      })
+      .catch((error) => {
+        if (error.name !== 'AbortError') {
+          useSolarStore.getState().setEphemerisError(error.message || 'Khong tai duoc Horizons');
+        }
+      });
+
+    return () => controller.abort();
+  }, [ephemerisStatus, mode]);
 
   return (
     <Canvas

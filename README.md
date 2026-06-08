@@ -12,6 +12,13 @@
 - 🎨 **Giao diện vũ trụ** — nền sao, hiệu ứng ánh sáng và không khí không gian sâu
 - 📱 **Responsive** — hoạt động trên cả desktop và mobile
 ---
+
+## NASA/JPL Horizons
+
+Chế độ `Thực tế` lấy vector quỹ đạo từ NASA/JPL Horizons qua route `/api/horizons`.
+Khi chạy local, Vite proxy trong `vite.config.js` chuyển tiếp route này tới `https://ssd.jpl.nasa.gov/api/horizons.api` để tránh CORS.
+Khi deploy static, cần cấu hình proxy tương tự và đặt `VITE_HORIZONS_PROXY_URL` nếu endpoint không phải `/api/horizons`.
+---
  
 ## 🚀 Demo
  

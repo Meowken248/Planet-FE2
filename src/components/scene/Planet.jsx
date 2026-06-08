@@ -4,6 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useSolarStore } from '../../store/useSolarStore.js';
+import { interpolateEphemeris } from '../../services/horizonsEphemeris.js';
 import OrbitRing from './OrbitRing.jsx';
 import Moon from './Moon.jsx';
 import Atmosphere from './Atmosphere.jsx';
@@ -48,10 +49,12 @@ const moonsByPlanet = {
 };
 export default function Planet({ planet }) {
   const pivotRef = useRef();
+  const orbitPositionRef = useRef();
   const visualRef = useRef();
   const meshRef = useRef();
   const cloudRef = useRef();
   const ringRef = useRef();
+  const simulationEpochRef = useRef(Date.now());
   const worldPosition = useMemo(() => new THREE.Vector3(), []);
 
   const selectedPlanetId = useSolarStore((state) => state.selectedPlanetId);
@@ -61,6 +64,7 @@ export default function Planet({ planet }) {
   const showOrbits = useSolarStore((state) => state.showOrbits);
   const showLabels = useSolarStore((state) => state.showLabels);
   const selectPlanet = useSolarStore((state) => state.selectPlanet);
+  const ephemeris = useSolarStore((state) => state.ephemeris);
 
   const texture = useTexture(planet.texture);
   const cloudTexture = useTexture(planet.clouds || planet.texture);
@@ -70,6 +74,7 @@ export default function Planet({ planet }) {
   const isFollowing = followingPlanetId === planet.id;
   const moons = moonsByPlanet[planet.id] || [];
   const orbitStyle = orbitStyles[planet.id] || orbitStyles.earth;
+  const axialTiltRad = THREE.MathUtils.degToRad(planet.nasa.axialTiltDeg);
 
   const initialAngle = useMemo(() => {
     const hash = [...planet.id].reduce((sum, letter) => sum + letter.charCodeAt(0), 0);
@@ -77,9 +82,26 @@ export default function Planet({ planet }) {
   }, [planet.id]);
 
   useFrame((_, delta) => {
-    if (!pivotRef.current || !meshRef.current || !visualRef.current) return;
+    if (!pivotRef.current || !orbitPositionRef.current || !meshRef.current || !visualRef.current) return;
 
-    pivotRef.current.rotation.y += delta * planet.orbitSpeed * speed * 0.16;
+    const realSamples = ephemeris.status === 'ready' ? ephemeris.bodies[planet.id] : null;
+
+    if (mode === 'realistic' && realSamples?.length) {
+      simulationEpochRef.current += delta * speed * 0.85 * 24 * 60 * 60 * 1000;
+      const sample = interpolateEphemeris(realSamples, simulationEpochRef.current);
+      const orbitScale = orbitRadius / planet.nasa.semiMajorAxisAu;
+
+      pivotRef.current.rotation.y = 0;
+      orbitPositionRef.current.position.set(
+        sample.x * orbitScale,
+        sample.z * orbitScale,
+        sample.y * orbitScale
+      );
+    } else {
+      pivotRef.current.rotation.y += delta * planet.orbitSpeed * speed * 0.16;
+      orbitPositionRef.current.position.set(orbitRadius, 0, 0);
+    }
+
     meshRef.current.rotation.y += delta * planet.rotationSpeed * speed;
 
     const nextScale = isFollowing ? 1.55 : 1;
@@ -113,8 +135,8 @@ export default function Planet({ planet }) {
         active={isSelected || isFollowing}
       />
       <group ref={pivotRef} rotation-y={initialAngle}>
-        <group position={[orbitRadius, 0, 0]}>
-          <group ref={visualRef}>
+        <group ref={orbitPositionRef} position={[orbitRadius, 0, 0]}>
+          <group ref={visualRef} rotation-z={axialTiltRad}>
             <mesh
               ref={meshRef}
               onClick={(event) => {

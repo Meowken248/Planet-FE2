@@ -1,4 +1,37 @@
-﻿export const planets = [
+﻿const EARTH_RADIUS_KM = 6371;
+const EARTH_ROTATION_HOURS = 23.9345;
+
+const nasaFacts = {
+  mercury: { horizonsId: '199', meanRadiusKm: 2439.7, axialTiltDeg: 0.034, rotationPeriodHours: 1407.6, semiMajorAxisAu: 0.3871 },
+  venus: { horizonsId: '299', meanRadiusKm: 6051.8, axialTiltDeg: 177.4, rotationPeriodHours: -5832.5, semiMajorAxisAu: 0.7233 },
+  earth: { horizonsId: '399', meanRadiusKm: 6371, axialTiltDeg: 23.44, rotationPeriodHours: 23.9345, semiMajorAxisAu: 1 },
+  mars: { horizonsId: '499', meanRadiusKm: 3389.5, axialTiltDeg: 25.19, rotationPeriodHours: 24.6229, semiMajorAxisAu: 1.5237 },
+  jupiter: { horizonsId: '599', meanRadiusKm: 69911, axialTiltDeg: 3.13, rotationPeriodHours: 9.925, semiMajorAxisAu: 5.2028 },
+  saturn: { horizonsId: '699', meanRadiusKm: 58232, axialTiltDeg: 26.73, rotationPeriodHours: 10.656, semiMajorAxisAu: 9.5388 },
+  uranus: { horizonsId: '799', meanRadiusKm: 25362, axialTiltDeg: 97.77, rotationPeriodHours: -17.24, semiMajorAxisAu: 19.1914 },
+  neptune: { horizonsId: '899', meanRadiusKm: 24622, axialTiltDeg: 28.32, rotationPeriodHours: 16.11, semiMajorAxisAu: 30.0611 },
+};
+
+const visualRadiusFromNasa = (planetId) => {
+  const earthRelativeRadius = nasaFacts[planetId].meanRadiusKm / EARTH_RADIUS_KM;
+  return Number((0.78 * Math.pow(earthRelativeRadius, 0.34)).toFixed(2));
+};
+
+const rotationSpeedFromNasa = (planetId) => {
+  const periodHours = nasaFacts[planetId].rotationPeriodHours;
+  const direction = Math.sign(periodHours) || 1;
+  const relativeSpeed = EARTH_ROTATION_HOURS / Math.abs(periodHours);
+  return Number((direction * Math.max(0.06, Math.min(1.9, relativeSpeed))).toFixed(3));
+};
+
+const withNasaMotion = (planet) => ({
+  ...planet,
+  nasa: nasaFacts[planet.id],
+  radius: visualRadiusFromNasa(planet.id),
+  rotationSpeed: rotationSpeedFromNasa(planet.id),
+});
+
+const planetProfiles = [
   {
     id: 'mercury',
     name: 'Sao Thủy',
@@ -162,6 +195,8 @@
     facts: ['Gió rất mạnh', 'Là hành tinh băng', 'Triton quay ngược chiều'],
   },
 ];
+
+export const planets = planetProfiles.map(withNasaMotion);
 
 export const planetMap = Object.fromEntries(planets.map((planet) => [planet.id, planet]));
 

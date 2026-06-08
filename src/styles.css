@@ -1628,6 +1628,42 @@ input,
   font-size: 12px;
 }
 
+.nasa-status {
+  display: inline-grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  min-height: 28px;
+  border: 1px solid rgba(134, 229, 255, 0.15);
+  border-radius: 8px;
+  padding: 0 9px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(231, 249, 255, 0.66);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.nasa-status svg {
+  width: 15px;
+  height: 15px;
+}
+
+.nasa-status.ready {
+  border-color: rgba(166, 255, 209, 0.24);
+  color: var(--dash-mint);
+}
+
+.nasa-status.loading {
+  border-color: rgba(255, 207, 102, 0.24);
+  color: var(--dash-warn);
+}
+
+.nasa-status.error {
+  border-color: rgba(255, 134, 112, 0.24);
+  color: #ffb19f;
+}
+
 .compact-planet-list {
   top: 136px;
   left: 18px;

@@ -56,8 +56,16 @@ export default function InfoPanel() {
           <dd>{planet.diameter}</dd>
         </div>
         <div>
+          <dt>Bán kính NASA</dt>
+          <dd>{planet.nasa.meanRadiusKm.toLocaleString('vi-VN')} km</dd>
+        </div>
+        <div>
           <dt>Ngày</dt>
           <dd>{planet.day}</dd>
+        </div>
+        <div>
+          <dt>Nghiêng trục</dt>
+          <dd>{planet.nasa.axialTiltDeg.toLocaleString('vi-VN')}°</dd>
         </div>
         <div>
           <dt>Năm</dt>

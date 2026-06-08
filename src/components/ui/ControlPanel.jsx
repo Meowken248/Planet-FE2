@@ -18,6 +18,15 @@ function Icon({ type }) {
       </>
     ),
     reset: <path d="M4 4v6h6M5.4 15a7 7 0 1 0 1.5-7.6L4 10" />,
+    antenna: (
+      <>
+        <path d="M12 19v-7" />
+        <path d="M8.5 15.5 12 12l3.5 3.5" />
+        <path d="M6 10a6 6 0 0 1 12 0" />
+        <path d="M3.5 7.5a10 10 0 0 1 17 0" />
+        <circle cx="12" cy="20" r="1" />
+      </>
+    ),
   };
 
   return (
@@ -33,6 +42,7 @@ export default function ControlPanel() {
   const showOrbits = useSolarStore((state) => state.showOrbits);
   const showLabels = useSolarStore((state) => state.showLabels);
   const cinematicTour = useSolarStore((state) => state.cinematicTour);
+  const ephemeris = useSolarStore((state) => state.ephemeris);
   const setMode = useSolarStore((state) => state.setMode);
   const setSpeed = useSolarStore((state) => state.setSpeed);
   const toggleOrbits = useSolarStore((state) => state.toggleOrbits);
@@ -76,6 +86,23 @@ export default function ControlPanel() {
         />
         <strong>{speed.toFixed(1)}x</strong>
       </label>
+
+      <div className={`nasa-status ${ephemeris.status}`}>
+        <Icon type="antenna" />
+        <span>
+          {mode !== 'realistic'
+            ? 'NASA sẵn sàng'
+            : ephemeris.status === 'ready'
+              ? ephemeris.fromCache
+                ? 'Horizons cache'
+                : 'Horizons live'
+              : ephemeris.status === 'loading'
+                ? 'Đang tải Horizons'
+                : ephemeris.status === 'error'
+                  ? 'Fallback mô phỏng'
+                  : 'Chưa tải Horizons'}
+        </span>
+      </div>
 
       <div className="toggle-row icon-toggle-row">
         <button type="button" className={showOrbits ? 'active' : ''} onClick={toggleOrbits} title="Bật/tắt quỹ đạo">

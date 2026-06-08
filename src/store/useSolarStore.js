@@ -18,6 +18,16 @@ export const useSolarStore = create((set) => ({
   answeredQuiz: null,
   focusTarget: [0, 0, 0],
   planetPositions: {},
+  ephemeris: {
+    status: 'idle',
+    source: null,
+    startDate: null,
+    stopDate: null,
+    fetchedAt: null,
+    fromCache: false,
+    error: null,
+    bodies: {},
+  },
     game: {
     activePlanetId: null,
     questionIndex: 0,
@@ -55,6 +65,35 @@ export const useSolarStore = create((set) => ({
   setMode: (mode) => set({ mode }),
   setSpeed: (speed) => set({ speed }),
   setFocusTarget: (focusTarget) => set({ focusTarget }),
+  setEphemerisLoading: () =>
+    set((state) => ({
+      ephemeris: {
+        ...state.ephemeris,
+        status: 'loading',
+        error: null,
+      },
+    })),
+  setEphemerisData: (ephemeris) =>
+    set({
+      ephemeris: {
+        status: 'ready',
+        source: ephemeris.source,
+        startDate: ephemeris.startDate,
+        stopDate: ephemeris.stopDate,
+        fetchedAt: ephemeris.fetchedAt,
+        fromCache: ephemeris.fromCache,
+        error: null,
+        bodies: ephemeris.bodies,
+      },
+    }),
+  setEphemerisError: (error) =>
+    set((state) => ({
+      ephemeris: {
+        ...state.ephemeris,
+        status: 'error',
+        error,
+      },
+    })),
   setPlanetPosition: (planetId, position) => {
     useSolarStore.getState().planetPositions[planetId] = position;
   },
