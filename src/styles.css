@@ -1706,62 +1706,6 @@ input,
   color: #ffffff;
 }
 
-.timeline-control {
-  display: grid;
-  gap: 7px;
-  border: 1px solid rgba(126, 218, 255, 0.13);
-  border-radius: 8px;
-  padding: 8px;
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.timeline-control > div:first-child {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.timeline-control span {
-  color: rgba(231, 249, 255, 0.52);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.timeline-control strong {
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 11px;
-  font-weight: 900;
-}
-
-.timeline-control input {
-  width: 100%;
-  height: 4px;
-  accent-color: var(--dash-mint);
-}
-
-.timeline-control input:disabled {
-  opacity: 0.36;
-}
-
-.timeline-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.timeline-buttons button:not(:disabled):hover {
-  border-color: rgba(134, 229, 255, 0.34);
-  color: #ffffff;
-}
-
-.timeline-buttons button:disabled {
-  opacity: 0.42;
-  cursor: not-allowed;
-}
-
 .compact-planet-list {
   top: 136px;
   left: 18px;
@@ -2481,7 +2425,7 @@ input,
     width: min(620px, calc(100vw - 520px));
     max-width: none;
     min-width: 540px;
-    grid-template-columns: 170px minmax(180px, 1fr) 170px;
+    grid-template-columns: 180px minmax(170px, 1fr) 180px;
     align-items: center;
     gap: 6px;
     padding: 6px;
@@ -2491,8 +2435,7 @@ input,
     grid-column: 1;
   }
 
-  .space-control-panel .dashboard-speed,
-  .space-control-panel .timeline-control {
+  .space-control-panel .dashboard-speed {
     grid-column: 2;
   }
 
@@ -2537,20 +2480,6 @@ input,
     display: none;
   }
 
-  .timeline-control {
-    gap: 5px;
-    padding: 6px;
-  }
-
-  .timeline-control > div:first-child {
-    min-height: 16px;
-  }
-
-  .timeline-buttons {
-    display: none;
-  }
-
-  .timeline-buttons button,
   .orbit-mode-row button {
     min-height: 24px;
   }
@@ -2567,6 +2496,10 @@ input,
     bottom: 104px;
     width: 314px;
     max-height: none;
+  }
+
+  .profile-panel.info-panel .panel-fold-body {
+    max-height: calc(100vh - 430px);
   }
 
   .compact-planet-list {
@@ -2590,6 +2523,10 @@ input,
     width: 300px;
     max-height: min(332px, calc(100vh - 588px));
     overflow: hidden;
+  }
+
+  .mission-control .panel-fold-body {
+    max-height: min(288px, calc(100vh - 640px));
   }
 
   .mission-log {
@@ -2623,6 +2560,10 @@ input,
     bottom: 104px;
   }
 
+  .profile-panel.info-panel .panel-fold-body {
+    max-height: calc(100vh - 392px);
+  }
+
   .compact-planet-list {
     max-height: none;
   }
@@ -2631,7 +2572,179 @@ input,
     max-height: 292px;
   }
 
+  .mission-control .panel-fold-body {
+    max-height: 248px;
+  }
+
   .surface-preview-stage {
     height: 96px;
   }
+}
+
+/* Collapsible dashboard panels */
+.fold-panel {
+  overflow: hidden;
+}
+
+.fold-panel .panel-toggle {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 18px;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 28px;
+  border: 1px solid rgba(126, 218, 255, 0.16);
+  border-radius: 7px;
+  padding: 0 9px;
+  background: rgba(255, 255, 255, 0.045);
+  color: rgba(238, 249, 255, 0.82);
+  text-align: left;
+  transform: none;
+}
+
+.fold-panel .panel-toggle:hover {
+  border-color: rgba(134, 229, 255, 0.34);
+  background: rgba(134, 229, 255, 0.095);
+  color: #ffffff;
+  transform: none;
+}
+
+.fold-panel .panel-toggle span,
+.fold-panel .panel-toggle strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 1000;
+  letter-spacing: 0.1em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.fold-panel .panel-toggle strong {
+  justify-self: end;
+  border-radius: 999px;
+  padding: 3px 7px;
+  background: rgba(166, 255, 209, 0.1);
+  color: var(--dash-mint);
+  letter-spacing: 0.03em;
+}
+
+.fold-panel .panel-toggle i {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 180ms ease;
+}
+
+.fold-panel.is-collapsed .panel-toggle i {
+  transform: rotate(-45deg);
+}
+
+.panel-fold-body {
+  overflow: hidden auto;
+  max-height: 900px;
+  opacity: 1;
+  scrollbar-width: none;
+  transition:
+    max-height 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms ease,
+    margin 220ms ease,
+    padding 220ms ease;
+}
+
+.panel-fold-body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.fold-panel.is-collapsed .panel-fold-body {
+  max-height: 0 !important;
+  margin-top: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.space-control-panel .panel-toggle {
+  grid-column: 1 / -1;
+}
+
+.space-control-panel .panel-fold-body {
+  display: contents;
+}
+
+.space-control-panel.is-collapsed {
+  width: min(260px, calc(100vw - 32px));
+  min-width: 0;
+  grid-template-columns: 1fr;
+}
+
+.space-control-panel.is-collapsed .panel-fold-body {
+  display: block;
+}
+
+.compact-planet-list .panel-fold-body {
+  display: grid;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.dashboard-progress .panel-fold-body {
+  margin-top: 7px;
+}
+
+.profile-panel .panel-fold-body,
+.mission-control .panel-fold-body {
+  display: block;
+}
+
+.profile-panel.info-panel.is-collapsed,
+.mission-control.is-collapsed,
+.dashboard-progress.is-collapsed,
+.compact-planet-list.is-collapsed {
+  bottom: auto;
+  height: auto;
+  max-height: none;
+  min-height: 0;
+}
+
+.profile-panel.info-panel.is-collapsed {
+  top: 274px;
+}
+
+.mission-control.is-collapsed {
+  bottom: 104px;
+}
+
+.compare-strip {
+  grid-template-columns: 132px 1fr;
+  align-items: center;
+}
+
+.compare-strip .panel-toggle {
+  align-self: stretch;
+  min-height: 44px;
+}
+
+.compare-strip .panel-fold-body {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(64px, 1fr));
+  align-items: end;
+  gap: 4px;
+}
+
+.compare-strip.is-collapsed {
+  left: 50%;
+  width: min(180px, calc(100vw - 32px));
+  min-height: 46px;
+  transform: translateX(-50%);
+  grid-template-columns: 1fr;
+}
+
+.compare-strip.is-collapsed .panel-toggle {
+  min-height: 34px;
 }

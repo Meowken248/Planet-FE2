@@ -43,6 +43,14 @@ export const useSolarStore = create((set) => ({
     lastResult: null,
   },
   uiVisible: true,
+  collapsedPanels: {
+    controls: false,
+    planets: false,
+    progress: false,
+    info: false,
+    mission: false,
+    compare: false,
+  },
   storyBookOpen: false,
   cinematicTour: {
     active: false,
@@ -400,6 +408,13 @@ export const useSolarStore = create((set) => ({
   toggleOrbits: () => set((state) => ({ showOrbits: !state.showOrbits })),
   toggleLabels: () => set((state) => ({ showLabels: !state.showLabels })),
   toggleUI: () => set((state) => ({ uiVisible: !state.uiVisible })),
+  togglePanel: (panelId) =>
+    set((state) => ({
+      collapsedPanels: {
+        ...state.collapsedPanels,
+        [panelId]: !state.collapsedPanels[panelId],
+      },
+    })),
   toggleQuiz: () => set((state) => ({ quizOpen: !state.quizOpen })),
   answerQuiz: (answeredQuiz) => set({ answeredQuiz }),
   openQuiz: () => set((state) => {

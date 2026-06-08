@@ -1,18 +1,18 @@
 import React from 'react';
 import { planets } from '../../data/planets.js';
 import { useSolarStore } from '../../store/useSolarStore.js';
+import PanelToggle from './PanelToggle.jsx';
 
 export default function PlanetList() {
   const selectedPlanetId = useSolarStore((state) => state.selectedPlanetId);
   const completedPlanetIds = useSolarStore((state) => state.game.completedPlanetIds);
+  const collapsed = useSolarStore((state) => state.collapsedPanels.planets);
   const selectPlanet = useSolarStore((state) => state.selectPlanet);
 
   return (
-    <aside className="planet-list compact-planet-list" aria-label="Danh sách hành tinh">
-      <div className="panel-mini-title">
-        <span>Planets</span>
-        <strong>{planets.length}</strong>
-      </div>
+    <aside className={`planet-list compact-planet-list fold-panel ${collapsed ? 'is-collapsed' : ''}`} aria-label="Danh sách hành tinh">
+      <PanelToggle panelId="planets" title="Planets" meta={planets.length} />
+      <div className="panel-fold-body">
       {planets.map((planet) => {
         const completed = completedPlanetIds.includes(planet.id);
         return (
@@ -32,6 +32,7 @@ export default function PlanetList() {
           </button>
         );
       })}
+      </div>
     </aside>
   );
 }

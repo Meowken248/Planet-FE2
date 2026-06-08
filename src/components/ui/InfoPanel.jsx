@@ -2,6 +2,7 @@ import React from 'react';
 import { planetMap } from '../../data/planets.js';
 import { useSolarStore } from '../../store/useSolarStore.js';
 import SurfacePreview from './SurfacePreview.jsx';
+import PanelToggle from './PanelToggle.jsx';
 
 const profileCodes = {
   mercury: 'MR-01',
@@ -17,6 +18,7 @@ const profileCodes = {
 export default function InfoPanel() {
   const selectedPlanetId = useSolarStore((state) => state.selectedPlanetId);
   const mission = useSolarStore((state) => state.mission);
+  const collapsed = useSolarStore((state) => state.collapsedPanels.info);
   const openStoryBook = useSolarStore((state) => state.openStoryBook);
   const openQuiz = useSolarStore((state) => state.openQuiz);
   const planet = planetMap[selectedPlanetId];
@@ -24,7 +26,9 @@ export default function InfoPanel() {
   const scanProgress = isMissionTarget ? 100 : mission.targetId === planet.id ? Math.round(mission.progress * 100) : 34;
 
   return (
-    <section className={`info-panel profile-panel ${planet.id}`} aria-live="polite">
+    <section className={`info-panel profile-panel fold-panel ${planet.id} ${collapsed ? 'is-collapsed' : ''}`} aria-live="polite">
+      <PanelToggle panelId="info" title="Hồ sơ hành tinh" meta={planet.name} />
+      <div className="panel-fold-body">
       <div className="profile-topline">
         <span>{profileCodes[planet.id]}</span>
         <strong>{isMissionTarget ? 'Đã quét' : 'Hồ sơ hành tinh'}</strong>
@@ -104,6 +108,7 @@ export default function InfoPanel() {
           </svg>
           Thử thách
         </button>
+      </div>
       </div>
     </section>
   );

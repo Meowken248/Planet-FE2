@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import { planetMap } from '../../data/planets.js';
 import { useSolarStore } from '../../store/useSolarStore.js';
+import PanelToggle from './PanelToggle.jsx';
 
 const statusLabel = {
   idle: 'Sẵn sàng',
@@ -12,6 +13,7 @@ const statusLabel = {
 export default function MissionControl() {
   const selectedPlanetId = useSolarStore((state) => state.selectedPlanetId);
   const mission = useSolarStore((state) => state.mission);
+  const collapsed = useSolarStore((state) => state.collapsedPanels.mission);
   const spacecraftHomePlanetId = useSolarStore((state) => state.spacecraftHomePlanetId);
   const launchMission = useSolarStore((state) => state.launchMission);
   const abortMission = useSolarStore((state) => state.abortMission);
@@ -25,7 +27,9 @@ export default function MissionControl() {
   const canFollowShip = mission.status === 'launch' || mission.status === 'cruise' || mission.status === 'scan';
 
   return (
-    <section className="mission-control">
+    <section className={`mission-control fold-panel ${collapsed ? 'is-collapsed' : ''}`}>
+      <PanelToggle panelId="mission" title="OrbitX" meta={mission.signal} />
+      <div className="panel-fold-body">
       <div className="mission-header">
         <div>
           <p className="eyebrow">Trung tâm điều khiển OrbitX</p>
@@ -95,6 +99,7 @@ export default function MissionControl() {
             {entry.message}
           </p>
         ))}
+      </div>
       </div>
     </section>
   );

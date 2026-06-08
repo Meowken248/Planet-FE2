@@ -1,18 +1,18 @@
 import React from 'react';
 import { planets } from '../../data/planets.js';
 import { useSolarStore } from '../../store/useSolarStore.js';
+import PanelToggle from './PanelToggle.jsx';
 
 export default function ProgressTracker() {
   const completedPlanetIds = useSolarStore((state) => state.game.completedPlanetIds);
+  const collapsed = useSolarStore((state) => state.collapsedPanels.progress);
   const completedCount = completedPlanetIds.length;
   const progress = (completedCount / planets.length) * 100;
 
   return (
-    <section className="progress-tracker dashboard-progress" aria-label="Tiến trình hoàn thành">
-      <div className="progress-heading">
-        <span>Nhiệm vụ</span>
-        <strong>{completedCount}/{planets.length}</strong>
-      </div>
+    <section className={`progress-tracker dashboard-progress fold-panel ${collapsed ? 'is-collapsed' : ''}`} aria-label="Tiến trình hoàn thành">
+      <PanelToggle panelId="progress" title="Nhiệm vụ" meta={`${completedCount}/${planets.length}`} />
+      <div className="panel-fold-body">
       <div className="completion-bar" aria-hidden="true">
         <span style={{ width: `${progress}%` }} />
       </div>
@@ -31,6 +31,7 @@ export default function ProgressTracker() {
             </span>
           );
         })}
+      </div>
       </div>
     </section>
   );
