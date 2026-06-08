@@ -44,12 +44,12 @@ export const useSolarStore = create((set) => ({
   },
   uiVisible: true,
   collapsedPanels: {
-    controls: false,
-    planets: false,
-    progress: false,
-    info: false,
-    mission: false,
-    compare: false,
+    controls: true,
+    planets: true,
+    progress: true,
+    info: true,
+    mission: true,
+    compare: true,
   },
   storyBookOpen: false,
   cinematicTour: {

@@ -48,32 +48,64 @@ const moonsByPlanet = {
   ],
 };
 
-function RealOrbitTrail({ samples, planet, orbitRadius, color, active, visible }) {
+function RealOrbitTrail({ samples, planet, orbitRadius, color, active, visible, currentSample }) {
+  const baseColor = useMemo(() => new THREE.Color(color), [color]);
   const geometry = useMemo(() => {
     const orbitScale = orbitRadius / planet.nasa.semiMajorAxisAu;
+    const colorValues = [];
+    const trailColor = new THREE.Color(color);
     const points = samples.map(
-      (sample) => new THREE.Vector3(sample.x * orbitScale, sample.z * orbitScale, sample.y * orbitScale)
+      (sample, index) => {
+        const progress = samples.length > 1 ? index / (samples.length - 1) : 1;
+        const brightness = active ? 0.26 + progress * 0.74 : 0.12 + progress * 0.42;
+        colorValues.push(trailColor.r * brightness, trailColor.g * brightness, trailColor.b * brightness);
+        return new THREE.Vector3(sample.x * orbitScale, sample.z * orbitScale, sample.y * orbitScale);
+      }
     );
 
     if (points.length > 2) {
       points.push(points[0].clone());
+      colorValues.push(colorValues[0], colorValues[1], colorValues[2]);
     }
 
-    return new THREE.BufferGeometry().setFromPoints(points);
-  }, [orbitRadius, planet, samples]);
+    const bufferGeometry = new THREE.BufferGeometry().setFromPoints(points);
+    bufferGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorValues, 3));
+    return bufferGeometry;
+  }, [active, color, orbitRadius, planet, samples]);
+
+  const currentPoint = useMemo(() => {
+    if (!currentSample) return null;
+    const orbitScale = orbitRadius / planet.nasa.semiMajorAxisAu;
+    return [currentSample.x * orbitScale, currentSample.z * orbitScale, currentSample.y * orbitScale];
+  }, [currentSample, orbitRadius, planet]);
 
   if (!visible || !samples?.length) return null;
 
   return (
-    <line geometry={geometry}>
-      <lineBasicMaterial
-        color={color}
-        transparent
-        opacity={active ? 0.58 : 0.28}
-        blending={THREE.AdditiveBlending}
-        depthWrite={false}
-      />
-    </line>
+    <>
+      <line geometry={geometry}>
+        <lineBasicMaterial
+          vertexColors
+          transparent
+          opacity={active ? 0.72 : 0.34}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </line>
+      {currentPoint && (
+        <mesh position={currentPoint}>
+          <sphereGeometry args={[active ? 0.105 : 0.065, 18, 18]} />
+          <meshBasicMaterial
+            color={baseColor}
+            transparent
+            opacity={active ? 0.9 : 0.42}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
+    </>
   );
 }
 
@@ -108,6 +140,10 @@ export default function Planet({ planet }) {
   const axialTiltRad = THREE.MathUtils.degToRad(planet.nasa.axialTiltDeg);
   const realSamples = ephemeris.status === 'ready' ? ephemeris.bodies[planet.id] : null;
   const showRealOrbit = mode === 'realistic' && orbitMode === 'real' && realSamples?.length;
+  const currentRealSample = useMemo(
+    () => (realSamples?.length ? interpolateEphemeris(realSamples, timelineEpochMs) : null),
+    [realSamples, timelineEpochMs]
+  );
 
   const initialAngle = useMemo(() => {
     const hash = [...planet.id].reduce((sum, letter) => sum + letter.charCodeAt(0), 0);
@@ -118,7 +154,7 @@ export default function Planet({ planet }) {
     if (!pivotRef.current || !orbitPositionRef.current || !meshRef.current || !visualRef.current) return;
 
     if (mode === 'realistic' && realSamples?.length) {
-      const sample = interpolateEphemeris(realSamples, timelineEpochMs);
+      const sample = currentRealSample;
       const orbitScale = orbitRadius / planet.nasa.semiMajorAxisAu;
 
       pivotRef.current.rotation.y = 0;
@@ -171,6 +207,7 @@ export default function Planet({ planet }) {
         color={orbitStyle.color}
         active={isSelected || isFollowing}
         visible={showOrbits && showRealOrbit}
+        currentSample={currentRealSample}
       />
       <group ref={pivotRef} rotation-y={initialAngle}>
         <group ref={orbitPositionRef} position={[orbitRadius, 0, 0]}>
@@ -185,7 +222,6 @@ export default function Planet({ planet }) {
               <sphereGeometry args={[planet.radius, 96, 96]} />
               <meshStandardMaterial map={texture} roughness={0.76} metalness={0.015} emissive={isSelected ? '#1b2438' : '#000000'} emissiveIntensity={isSelected ? 0.12 : 0.02} />
             </mesh>
-
             <Atmosphere planetId={planet.id} radius={planet.radius} active={isSelected || isFollowing} />
 
             {planet.clouds && (

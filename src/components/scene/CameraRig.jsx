@@ -30,7 +30,7 @@ export default function CameraRig() {
   const tourPosition = useMemo(() => new THREE.Vector3(), []);
 
   const tourTargetIds = ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
-  const tourStepDuration = 10.5;
+  const tourStepDuration = 13.5;
 
   const focusAngles = {
     saturn: -0.95,
@@ -58,6 +58,8 @@ export default function CameraRig() {
       const targetId = tourTargetIds[tourIndex];
       const tourElapsed = clock.elapsedTime - tourStartTimeRef.current;
       const nextIndex = Math.floor(tourElapsed / tourStepDuration) % tourTargetIds.length;
+      const stepProgress = (tourElapsed % tourStepDuration) / tourStepDuration;
+      const orbitDrift = easeInOutCubic(stepProgress) * Math.PI * 0.42;
 
       if (nextIndex !== tourIndex) {
         useSolarStore.getState().setCinematicTourIndex(nextIndex);
@@ -66,9 +68,9 @@ export default function CameraRig() {
       if (targetId === 'sun') {
         tourTarget.set(0, -0.8, 0);
         tourPosition.set(
-          Math.cos(clock.elapsedTime * 0.12) * 10.5,
-          4.5 + Math.sin(clock.elapsedTime * 0.18) * 0.9,
-          Math.sin(clock.elapsedTime * 0.12) * 10.5
+          Math.cos(clock.elapsedTime * 0.07) * 12.5,
+          4.7 + Math.sin(clock.elapsedTime * 0.1) * 0.72,
+          Math.sin(clock.elapsedTime * 0.07) * 12.5
         );
       } else {
         const selected = planetMap[targetId];
@@ -76,8 +78,8 @@ export default function CameraRig() {
 
         if (selected && planetPosition) {
           const radius = selected.radius * 1.55;
-          const angle = (focusAngles[targetId] ?? 0.72) + Math.sin(clock.elapsedTime * 0.16) * 0.22;
-          const distance = Math.max(5.2, radius * 4.45);
+          const angle = (focusAngles[targetId] ?? 0.72) + orbitDrift + Math.sin(clock.elapsedTime * 0.08) * 0.12;
+          const distance = Math.max(5.8, radius * 4.9);
           tourTarget.set(planetPosition[0], planetPosition[1], planetPosition[2]);
           tourPosition.set(
             planetPosition[0] + Math.cos(angle) * distance,
@@ -87,8 +89,8 @@ export default function CameraRig() {
         }
       }
 
-      camera.position.lerp(tourPosition, 0.008);
-      controlsRef.current.target.lerp(tourTarget, 0.014);
+      camera.position.lerp(tourPosition, 1 - Math.exp(-delta * 0.72));
+      controlsRef.current.target.lerp(tourTarget, 1 - Math.exp(-delta * 1.05));
       controlsRef.current.update();
       return;
     }

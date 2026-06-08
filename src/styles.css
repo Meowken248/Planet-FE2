@@ -2669,6 +2669,10 @@ input,
   pointer-events: none;
 }
 
+.fold-panel.is-collapsed {
+  padding: 6px !important;
+}
+
 .space-control-panel .panel-toggle {
   grid-column: 1 / -1;
 }
@@ -2710,6 +2714,13 @@ input,
   height: auto;
   max-height: none;
   min-height: 0;
+}
+
+.dashboard-progress.is-collapsed,
+.compact-planet-list.is-collapsed,
+.mission-control.is-collapsed,
+.profile-panel.info-panel.is-collapsed {
+  width: min(230px, calc(100vw - 32px));
 }
 
 .profile-panel.info-panel.is-collapsed {
