@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
@@ -49,11 +49,71 @@ const sunFragmentShader = `
   }
 `;
 
+const heatShellVertexShader = `
+  varying vec2 vUv;
+  varying vec3 vNormal;
+  varying vec3 vWorldPosition;
+
+  void main() {
+    vUv = uv;
+    vNormal = normalize(normalMatrix * normal);
+    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+    vWorldPosition = worldPosition.xyz;
+    gl_Position = projectionMatrix * viewMatrix * worldPosition;
+  }
+`;
+
+const heatShellFragmentShader = `
+  uniform float uTime;
+  varying vec2 vUv;
+  varying vec3 vNormal;
+  varying vec3 vWorldPosition;
+
+  float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+  }
+
+  float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(
+      mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+      mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
+      u.y
+    );
+  }
+
+  float fbm(vec2 p) {
+    float value = 0.0;
+    float amp = 0.5;
+    for (int i = 0; i < 4; i++) {
+      value += noise(p) * amp;
+      p *= 2.05;
+      amp *= 0.5;
+    }
+    return value;
+  }
+
+  void main() {
+    vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+    float rim = pow(1.0 - abs(dot(normalize(vNormal), viewDir)), 2.15);
+    float plasma = fbm(vUv * 8.5 + vec2(uTime * 0.08, -uTime * 0.045));
+    float sparks = smoothstep(0.58, 0.92, plasma);
+    vec3 amber = vec3(1.0, 0.36, 0.04);
+    vec3 yellow = vec3(1.0, 0.82, 0.22);
+    vec3 whiteHot = vec3(1.0, 0.96, 0.68);
+    vec3 color = mix(amber, yellow, plasma);
+    color = mix(color, whiteHot, sparks * 0.42);
+    float alpha = 0.075 + rim * 0.28 + sparks * 0.055;
+    alpha *= smoothstep(0.05, 0.24, rim + plasma * 0.28);
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
+
 export default function Sun() {
   const sunRef = useRef();
-  const innerGlowRef = useRef();
-  const outerGlowRef = useRef();
-  const coronaRef = useRef();
+  const heatShellRef = useRef();
   const texture = useTexture('/planets/sun.jpg');
 
   const sunMaterial = useMemo(
@@ -70,21 +130,32 @@ export default function Sun() {
     [texture]
   );
 
+  const heatShellMaterial = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms: {
+          uTime: { value: 0 },
+        },
+        vertexShader: heatShellVertexShader,
+        fragmentShader: heatShellFragmentShader,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        toneMapped: false,
+      }),
+    []
+  );
+
   useFrame(({ clock }, delta) => {
     const time = clock.elapsedTime;
     sunMaterial.uniforms.uTime.value = time;
+    heatShellMaterial.uniforms.uTime.value = time;
 
     if (sunRef.current) sunRef.current.rotation.y += delta * 0.18;
-    if (innerGlowRef.current) {
-      innerGlowRef.current.rotation.y -= delta * 0.06;
-      innerGlowRef.current.scale.setScalar(1 + Math.sin(time * 1.6) * 0.025);
-    }
-    if (outerGlowRef.current) {
-      outerGlowRef.current.scale.setScalar(1 + Math.sin(time * 0.9) * 0.04);
-    }
-    if (coronaRef.current) {
-      coronaRef.current.rotation.z += delta * 0.045;
-      coronaRef.current.scale.setScalar(1 + Math.sin(time * 0.7) * 0.035);
+    if (heatShellRef.current) {
+      heatShellRef.current.rotation.y -= delta * 0.08;
+      heatShellRef.current.rotation.z += delta * 0.025;
+      heatShellRef.current.scale.setScalar(1 + Math.sin(time * 1.35) * 0.012);
     }
   });
 
@@ -94,39 +165,8 @@ export default function Sun() {
       <mesh ref={sunRef} material={sunMaterial}>
         <sphereGeometry args={[2.15, 128, 128]} />
       </mesh>
-      <mesh ref={innerGlowRef}>
-        <sphereGeometry args={[2.88, 96, 96]} />
-        <meshBasicMaterial
-          color="#ffb347"
-          transparent
-          opacity={0.22}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-      <mesh ref={outerGlowRef}>
-        <sphereGeometry args={[3.75, 96, 96]} />
-        <meshBasicMaterial
-          color="#ff7d33"
-          transparent
-          opacity={0.1}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-      <mesh ref={coronaRef}>
-        <ringGeometry args={[3.1, 4.55, 180]} />
-        <meshBasicMaterial
-          color="#ffd27a"
-          transparent
-          opacity={0.15}
-          side={THREE.DoubleSide}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          toneMapped={false}
-        />
+      <mesh ref={heatShellRef} material={heatShellMaterial}>
+        <sphereGeometry args={[2.34, 128, 128]} />
       </mesh>
     </group>
   );

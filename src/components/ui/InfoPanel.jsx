@@ -1,6 +1,7 @@
-﻿import React from 'react';
+import React from 'react';
 import { planetMap } from '../../data/planets.js';
 import { useSolarStore } from '../../store/useSolarStore.js';
+import SurfacePreview from './SurfacePreview.jsx';
 
 const profileCodes = {
   mercury: 'MR-01',
@@ -44,6 +45,8 @@ export default function InfoPanel() {
         </div>
         <i style={{ width: `${scanProgress}%` }} />
       </div>
+
+      <SurfacePreview planet={planet} />
 
       <p className="description">{planet.description}</p>
 

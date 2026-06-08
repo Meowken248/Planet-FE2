@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
@@ -40,8 +40,6 @@ function AsteroidRock({ config }) {
 
 export default function AsteroidBelt() {
   const beltRef = useRef();
-  const hazeRef = useRef();
-  const showOrbits = useSolarStore((state) => state.showOrbits);
   const speed = useSolarStore((state) => state.speed);
 
   const sprite = useMemo(() => {
@@ -120,29 +118,11 @@ export default function AsteroidBelt() {
       beltRef.current.rotation.y += delta * 0.026 * speed;
       beltRef.current.rotation.z = 0.055 + Math.sin(performance.now() * 0.00008) * 0.018;
     }
-
-    if (hazeRef.current) {
-      hazeRef.current.rotation.y -= delta * 0.012 * speed;
-    }
   });
 
-  if (!showOrbits) {
-    return null;
-  }
 
   return (
     <group rotation-z={0.055}>
-      <mesh ref={hazeRef} rotation-x={Math.PI / 2}>
-        <ringGeometry args={[11.35, 13.85, 256]} />
-        <meshBasicMaterial
-          color="#d7c4a0"
-          transparent
-          opacity={0.045}
-          side={THREE.DoubleSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
 
       <points ref={beltRef}>
         <bufferGeometry>

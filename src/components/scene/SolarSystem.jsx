@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Environment, Preload, Stars } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
@@ -14,7 +14,6 @@ import { useSolarStore } from '../../store/useSolarStore.js';
 
 export default function SolarSystem() {
   const stopFollowingPlanet = useSolarStore((state) => state.stopFollowingPlanet);
-  const showOrbits = useSolarStore((state) => state.showOrbits);
 
   return (
     <Canvas
@@ -34,7 +33,7 @@ export default function SolarSystem() {
       <Suspense fallback={null}>
         <group rotation-x={0.12} position={[0, -0.8, 0]}>
           <Sun />
-          {showOrbits && <AsteroidBelt />}
+          <AsteroidBelt />
           {planets.map((planet) => (
             <Planet key={planet.id} planet={planet} />
           ))}

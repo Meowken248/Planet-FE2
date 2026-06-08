@@ -46,7 +46,6 @@ export default function App() {
         <div className="top-bar">
           <div>
             <p>SolarVerse</p>
-            <h1>Game khám phá hệ Mặt Trời</h1>
           </div>
           <ControlPanel />
         </div>
