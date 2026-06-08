@@ -1,6 +1,6 @@
 import React from 'react';
 import { Environment, Preload, Stars } from '@react-three/drei';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { Suspense, useEffect } from 'react';
 import { planets } from '../../data/planets.js';
 import { loadHorizonsEphemeris } from '../../services/horizonsEphemeris.js';
@@ -12,6 +12,16 @@ import SceneEffects from './SceneEffects.jsx';
 import StarBackdrop from './StarBackdrop.jsx';
 import Sun from './Sun.jsx';
 import { useSolarStore } from '../../store/useSolarStore.js';
+
+function SimulationClock() {
+  const advanceTimeline = useSolarStore((state) => state.advanceTimeline);
+
+  useFrame((_, delta) => {
+    advanceTimeline(delta);
+  });
+
+  return null;
+}
 
 export default function SolarSystem() {
   const stopFollowingPlanet = useSolarStore((state) => state.stopFollowingPlanet);
@@ -49,7 +59,8 @@ export default function SolarSystem() {
       <color attach="background" args={['#03040a']} />
       <fog attach="fog" args={['#03040a', 60, 180]} />
 
-      <ambientLight intensity={0.45} />
+      <ambientLight intensity={0.22} />
+      <hemisphereLight args={['#7fb8ff', '#08030d', 0.18]} />
       <StarBackdrop />
       <Stars radius={145} depth={80} count={1800} factor={2.7} saturation={0.12} fade speed={0.18} />
 
@@ -66,6 +77,8 @@ export default function SolarSystem() {
         <Preload all />
       </Suspense>
 
+      <SimulationClock />
+      <SceneEffects />
       <CameraRig />
     </Canvas>
   );

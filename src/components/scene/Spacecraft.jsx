@@ -20,24 +20,24 @@ function EngineGlow({ activeRef }) {
     const pulse = 0.92 + Math.sin(clock.elapsedTime * 9) * 0.08;
 
     if (glowRef.current) {
-      glowRef.current.scale.setScalar((6 + intensity * 5) * pulse);
-      glowRef.current.material.opacity = 0.1 + intensity * 0.18;
+      glowRef.current.scale.setScalar((4.2 + intensity * 3.2) * pulse);
+      glowRef.current.material.opacity = 0.06 + intensity * 0.1;
     }
 
     if (haloRef.current) {
-      haloRef.current.scale.setScalar((11 + intensity * 7) * pulse);
-      haloRef.current.material.opacity = 0.025 + intensity * 0.055;
+      haloRef.current.scale.setScalar((7 + intensity * 4.5) * pulse);
+      haloRef.current.material.opacity = 0.012 + intensity * 0.028;
     }
   });
 
   return (
     <group>
       <Trail
-        width={0.56}
-        length={6}
-        decay={3.2}
+        width={0.34}
+        length={2.4}
+        decay={7.5}
         local={false}
-        stride={0.015}
+        stride={0.04}
         interval={1}
         color="#6feaff"
         attenuation={(width) => width * width}
@@ -47,7 +47,7 @@ function EngineGlow({ activeRef }) {
           <meshBasicMaterial
             color="#8eefff"
             transparent
-            opacity={0.16}
+            opacity={0.1}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
             toneMapped={false}
@@ -60,7 +60,7 @@ function EngineGlow({ activeRef }) {
         <meshBasicMaterial
           color="#4abfff"
           transparent
-          opacity={0.05}
+          opacity={0.026}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
           toneMapped={false}

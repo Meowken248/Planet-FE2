@@ -1,5 +1,7 @@
 ﻿import { create } from 'zustand';
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 const createLog = (message) => ({
   id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
   time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
@@ -11,6 +13,8 @@ export const useSolarStore = create((set) => ({
   followingPlanetId: null,
   spacecraftHomePlanetId: 'earth',
   mode: 'cinematic',
+  orbitMode: 'real',
+  timelineEpochMs: Date.now(),
   speed: 1,
   showOrbits: true,
   showLabels: true,
@@ -63,6 +67,7 @@ export const useSolarStore = create((set) => ({
   selectPlanet: (selectedPlanetId) => set({ selectedPlanetId, followingPlanetId: selectedPlanetId }),
   stopFollowingPlanet: () => set({ followingPlanetId: null, cinematicTour: { active: false, index: 0 } }),
   setMode: (mode) => set({ mode }),
+  setOrbitMode: (orbitMode) => set({ orbitMode }),
   setSpeed: (speed) => set({ speed }),
   setFocusTarget: (focusTarget) => set({ focusTarget }),
   setEphemerisLoading: () =>
@@ -74,17 +79,28 @@ export const useSolarStore = create((set) => ({
       },
     })),
   setEphemerisData: (ephemeris) =>
-    set({
-      ephemeris: {
-        status: 'ready',
-        source: ephemeris.source,
-        startDate: ephemeris.startDate,
-        stopDate: ephemeris.stopDate,
-        fetchedAt: ephemeris.fetchedAt,
-        fromCache: ephemeris.fromCache,
-        error: null,
-        bodies: ephemeris.bodies,
-      },
+    set((state) => {
+      const startMs = Date.parse(ephemeris.startDate);
+      const stopMs = Date.parse(ephemeris.stopDate);
+      const currentEpoch = state.timelineEpochMs || Date.now();
+      const timelineEpochMs =
+        Number.isFinite(startMs) && Number.isFinite(stopMs)
+          ? Math.min(stopMs, Math.max(startMs, currentEpoch))
+          : currentEpoch;
+
+      return {
+        ephemeris: {
+          status: 'ready',
+          source: ephemeris.source,
+          startDate: ephemeris.startDate,
+          stopDate: ephemeris.stopDate,
+          fetchedAt: ephemeris.fetchedAt,
+          fromCache: ephemeris.fromCache,
+          error: null,
+          bodies: ephemeris.bodies,
+        },
+        timelineEpochMs,
+      };
     }),
   setEphemerisError: (error) =>
     set((state) => ({
@@ -97,6 +113,50 @@ export const useSolarStore = create((set) => ({
   setPlanetPosition: (planetId, position) => {
     useSolarStore.getState().planetPositions[planetId] = position;
   },
+  setTimelineEpochMs: (timelineEpochMs) =>
+    set((state) => {
+      const startMs = Date.parse(state.ephemeris.startDate);
+      const stopMs = Date.parse(state.ephemeris.stopDate);
+
+      return {
+        timelineEpochMs:
+          Number.isFinite(startMs) && Number.isFinite(stopMs)
+            ? Math.min(stopMs, Math.max(startMs, timelineEpochMs))
+            : timelineEpochMs,
+      };
+    }),
+  nudgeTimelineDays: (days) =>
+    set((state) => {
+      const startMs = Date.parse(state.ephemeris.startDate);
+      const stopMs = Date.parse(state.ephemeris.stopDate);
+      const nextEpoch = state.timelineEpochMs + days * DAY_MS;
+
+      return {
+        timelineEpochMs:
+          Number.isFinite(startMs) && Number.isFinite(stopMs)
+            ? Math.min(stopMs, Math.max(startMs, nextEpoch))
+            : nextEpoch,
+      };
+    }),
+  advanceTimeline: (deltaSeconds) =>
+    set((state) => {
+      if (state.mode !== 'realistic' || state.ephemeris.status !== 'ready' || state.speed <= 0) {
+        return state;
+      }
+
+      const startMs = Date.parse(state.ephemeris.startDate);
+      const stopMs = Date.parse(state.ephemeris.stopDate);
+      const span = Number.isFinite(startMs) && Number.isFinite(stopMs) ? stopMs - startMs : 0;
+      const nextEpoch = state.timelineEpochMs + deltaSeconds * state.speed * 0.85 * DAY_MS;
+      const wrappedEpoch = span > 0 && nextEpoch > stopMs ? startMs + ((nextEpoch - startMs) % span) : nextEpoch;
+
+      return {
+        timelineEpochMs:
+          Number.isFinite(startMs) && Number.isFinite(stopMs)
+            ? Math.min(stopMs, Math.max(startMs, wrappedEpoch))
+            : wrappedEpoch,
+      };
+    }),
   launchMission: () =>
     set((state) => {
       const targetId = state.selectedPlanetId;

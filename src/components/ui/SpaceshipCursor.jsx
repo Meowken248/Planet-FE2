@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect, useRef } from 'react';
 
-const trailCount = 16;
+const trailCount = 9;
 
 export default function SpaceshipCursor() {
   const cursorRef = useRef(null);
@@ -31,14 +31,14 @@ export default function SpaceshipCursor() {
 
       points.current.forEach((point, index) => {
         const leader = index === 0 ? mouse.current : points.current[index - 1];
-        point.x += (leader.x - point.x) * (0.32 - index * 0.01);
-        point.y += (leader.y - point.y) * (0.32 - index * 0.01);
+        point.x += (leader.x - point.x) * (0.46 - index * 0.025);
+        point.y += (leader.y - point.y) * (0.46 - index * 0.025);
 
         const node = trailRefs.current[index];
         if (node) {
           const scale = 1 - index / trailCount;
           node.style.transform = `translate3d(${point.x}px, ${point.y}px, 0) scale(${scale})`;
-          node.style.opacity = String(0.5 - index * 0.026);
+          node.style.opacity = String(Math.max(0, 0.34 - index * 0.055));
         }
       });
 

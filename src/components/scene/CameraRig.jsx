@@ -30,7 +30,7 @@ export default function CameraRig() {
   const tourPosition = useMemo(() => new THREE.Vector3(), []);
 
   const tourTargetIds = ['sun', 'mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
-  const tourStepDuration = 7.2;
+  const tourStepDuration = 10.5;
 
   const focusAngles = {
     saturn: -0.95,
@@ -87,8 +87,8 @@ export default function CameraRig() {
         }
       }
 
-      camera.position.lerp(tourPosition, 0.018);
-      controlsRef.current.target.lerp(tourTarget, 0.032);
+      camera.position.lerp(tourPosition, 0.008);
+      controlsRef.current.target.lerp(tourTarget, 0.014);
       controlsRef.current.update();
       return;
     }

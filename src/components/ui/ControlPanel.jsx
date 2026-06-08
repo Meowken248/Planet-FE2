@@ -1,6 +1,15 @@
 import React from 'react';
 import { useSolarStore } from '../../store/useSolarStore.js';
 
+const timelineFormatter = new Intl.DateTimeFormat('vi-VN', {
+  timeZone: 'UTC',
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+
 function Icon({ type }) {
   const paths = {
     film: (
@@ -38,18 +47,27 @@ function Icon({ type }) {
 
 export default function ControlPanel() {
   const mode = useSolarStore((state) => state.mode);
+  const orbitMode = useSolarStore((state) => state.orbitMode);
+  const timelineEpochMs = useSolarStore((state) => state.timelineEpochMs);
   const speed = useSolarStore((state) => state.speed);
   const showOrbits = useSolarStore((state) => state.showOrbits);
   const showLabels = useSolarStore((state) => state.showLabels);
   const cinematicTour = useSolarStore((state) => state.cinematicTour);
   const ephemeris = useSolarStore((state) => state.ephemeris);
   const setMode = useSolarStore((state) => state.setMode);
+  const setOrbitMode = useSolarStore((state) => state.setOrbitMode);
+  const setTimelineEpochMs = useSolarStore((state) => state.setTimelineEpochMs);
+  const nudgeTimelineDays = useSolarStore((state) => state.nudgeTimelineDays);
   const setSpeed = useSolarStore((state) => state.setSpeed);
   const toggleOrbits = useSolarStore((state) => state.toggleOrbits);
   const toggleLabels = useSolarStore((state) => state.toggleLabels);
   const restartGame = useSolarStore((state) => state.restartGame);
   const startCinematicTour = useSolarStore((state) => state.startCinematicTour);
   const stopCinematicTour = useSolarStore((state) => state.stopCinematicTour);
+  const timelineStartMs = Date.parse(ephemeris.startDate);
+  const timelineStopMs = Date.parse(ephemeris.stopDate);
+  const timelineReady = mode === 'realistic' && ephemeris.status === 'ready' && Number.isFinite(timelineStartMs) && Number.isFinite(timelineStopMs);
+  const displayedEpoch = Number.isFinite(timelineEpochMs) ? timelineEpochMs : Date.now();
 
   return (
     <section className="control-panel space-control-panel">
@@ -89,6 +107,19 @@ export default function ControlPanel() {
 
       <div className={`nasa-status ${ephemeris.status}`}>
         <Icon type="antenna" />
+        <strong>
+          {mode !== 'realistic'
+            ? 'READY'
+            : ephemeris.status === 'ready'
+              ? ephemeris.fromCache
+                ? 'CACHE'
+                : 'LIVE'
+              : ephemeris.status === 'loading'
+                ? 'SYNC'
+                : ephemeris.status === 'error'
+                  ? 'FALLBACK'
+                  : 'STANDBY'}
+        </strong>
         <span>
           {mode !== 'realistic'
             ? 'NASA sẵn sàng'
@@ -102,6 +133,52 @@ export default function ControlPanel() {
                   ? 'Fallback mô phỏng'
                   : 'Chưa tải Horizons'}
         </span>
+      </div>
+
+      <div className="orbit-mode-row" role="group" aria-label="Kiểu quỹ đạo">
+        <button
+          type="button"
+          className={orbitMode === 'real' ? 'active' : ''}
+          onClick={() => setOrbitMode('real')}
+          title="Quỹ đạo thật từ NASA/JPL Horizons"
+        >
+          Real orbit
+        </button>
+        <button
+          type="button"
+          className={orbitMode === 'visual' ? 'active' : ''}
+          onClick={() => setOrbitMode('visual')}
+          title="Quỹ đạo visual dễ nhìn"
+        >
+          Visual orbit
+        </button>
+      </div>
+
+      <div className={`timeline-control ${timelineReady ? 'ready' : ''}`}>
+        <div>
+          <span>Epoch UTC</span>
+          <strong>{timelineFormatter.format(new Date(displayedEpoch))}</strong>
+        </div>
+        <input
+          type="range"
+          min={timelineReady ? timelineStartMs : 0}
+          max={timelineReady ? timelineStopMs : 100}
+          step={60 * 60 * 1000}
+          value={timelineReady ? displayedEpoch : 0}
+          disabled={!timelineReady}
+          onChange={(event) => setTimelineEpochMs(Number(event.target.value))}
+        />
+        <div className="timeline-buttons">
+          <button type="button" disabled={!timelineReady} onClick={() => nudgeTimelineDays(-1)} title="Lùi 1 ngày">
+            -1d
+          </button>
+          <button type="button" disabled={!timelineReady} onClick={() => setTimelineEpochMs(Date.now())} title="Về hiện tại">
+            Now
+          </button>
+          <button type="button" disabled={!timelineReady} onClick={() => nudgeTimelineDays(1)} title="Tiến 1 ngày">
+            +1d
+          </button>
+        </div>
       </div>
 
       <div className="toggle-row icon-toggle-row">

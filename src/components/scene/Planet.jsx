@@ -47,6 +47,36 @@ const moonsByPlanet = {
     { name: 'Triton', radius: 0.13, distance: 2.05, orbitSpeed: -0.72, rotationSpeed: 0.6, angle: 2.1, color: '#d9d6c8', tilt: -0.48 },
   ],
 };
+
+function RealOrbitTrail({ samples, planet, orbitRadius, color, active, visible }) {
+  const geometry = useMemo(() => {
+    const orbitScale = orbitRadius / planet.nasa.semiMajorAxisAu;
+    const points = samples.map(
+      (sample) => new THREE.Vector3(sample.x * orbitScale, sample.z * orbitScale, sample.y * orbitScale)
+    );
+
+    if (points.length > 2) {
+      points.push(points[0].clone());
+    }
+
+    return new THREE.BufferGeometry().setFromPoints(points);
+  }, [orbitRadius, planet, samples]);
+
+  if (!visible || !samples?.length) return null;
+
+  return (
+    <line geometry={geometry}>
+      <lineBasicMaterial
+        color={color}
+        transparent
+        opacity={active ? 0.58 : 0.28}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+      />
+    </line>
+  );
+}
+
 export default function Planet({ planet }) {
   const pivotRef = useRef();
   const orbitPositionRef = useRef();
@@ -54,12 +84,13 @@ export default function Planet({ planet }) {
   const meshRef = useRef();
   const cloudRef = useRef();
   const ringRef = useRef();
-  const simulationEpochRef = useRef(Date.now());
   const worldPosition = useMemo(() => new THREE.Vector3(), []);
 
   const selectedPlanetId = useSolarStore((state) => state.selectedPlanetId);
   const followingPlanetId = useSolarStore((state) => state.followingPlanetId);
   const mode = useSolarStore((state) => state.mode);
+  const orbitMode = useSolarStore((state) => state.orbitMode);
+  const timelineEpochMs = useSolarStore((state) => state.timelineEpochMs);
   const speed = useSolarStore((state) => state.speed);
   const showOrbits = useSolarStore((state) => state.showOrbits);
   const showLabels = useSolarStore((state) => state.showLabels);
@@ -75,6 +106,8 @@ export default function Planet({ planet }) {
   const moons = moonsByPlanet[planet.id] || [];
   const orbitStyle = orbitStyles[planet.id] || orbitStyles.earth;
   const axialTiltRad = THREE.MathUtils.degToRad(planet.nasa.axialTiltDeg);
+  const realSamples = ephemeris.status === 'ready' ? ephemeris.bodies[planet.id] : null;
+  const showRealOrbit = mode === 'realistic' && orbitMode === 'real' && realSamples?.length;
 
   const initialAngle = useMemo(() => {
     const hash = [...planet.id].reduce((sum, letter) => sum + letter.charCodeAt(0), 0);
@@ -84,11 +117,8 @@ export default function Planet({ planet }) {
   useFrame((_, delta) => {
     if (!pivotRef.current || !orbitPositionRef.current || !meshRef.current || !visualRef.current) return;
 
-    const realSamples = ephemeris.status === 'ready' ? ephemeris.bodies[planet.id] : null;
-
     if (mode === 'realistic' && realSamples?.length) {
-      simulationEpochRef.current += delta * speed * 0.85 * 24 * 60 * 60 * 1000;
-      const sample = interpolateEphemeris(realSamples, simulationEpochRef.current);
+      const sample = interpolateEphemeris(realSamples, timelineEpochMs);
       const orbitScale = orbitRadius / planet.nasa.semiMajorAxisAu;
 
       pivotRef.current.rotation.y = 0;
@@ -128,11 +158,19 @@ export default function Planet({ planet }) {
     <>
       <OrbitRing
         radius={orbitRadius}
-        visible={showOrbits}
+        visible={showOrbits && !showRealOrbit}
         color={orbitStyle.color}
         tilt={orbitStyle.tilt}
         speed={planet.orbitSpeed}
         active={isSelected || isFollowing}
+      />
+      <RealOrbitTrail
+        samples={realSamples || []}
+        planet={planet}
+        orbitRadius={orbitRadius}
+        color={orbitStyle.color}
+        active={isSelected || isFollowing}
+        visible={showOrbits && showRealOrbit}
       />
       <group ref={pivotRef} rotation-y={initialAngle}>
         <group ref={orbitPositionRef} position={[orbitRadius, 0, 0]}>

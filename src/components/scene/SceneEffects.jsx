@@ -14,9 +14,9 @@ export default function SceneEffects() {
     const renderPass = new RenderPass(scene, camera);
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(size.width, size.height),
-      0.62,
-      0.58,
-      0.72
+      0.28,
+      0.36,
+      0.9
     );
     const outputPass = new OutputPass();
 
@@ -28,7 +28,7 @@ export default function SceneEffects() {
 
   useEffect(() => {
     gl.toneMapping = THREE.ACESFilmicToneMapping;
-    gl.toneMappingExposure = 1.08;
+    gl.toneMappingExposure = 0.82;
     gl.outputColorSpace = THREE.SRGBColorSpace;
   }, [gl]);
 

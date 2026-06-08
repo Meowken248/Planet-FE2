@@ -39,12 +39,12 @@ const sunFragmentShader = `
     float hot = smoothstep(-0.28, 0.78, flame);
     vec3 deepOrange = vec3(1.0, 0.24, 0.03);
     vec3 gold = vec3(1.0, 0.72, 0.16);
-    vec3 whiteHot = vec3(1.0, 0.94, 0.58);
+    vec3 whiteHot = vec3(1.0, 0.86, 0.45);
     vec3 color = mix(deepOrange, gold, hot);
-    color = mix(color, whiteHot, pow(hot, 3.0) * 0.72);
-    color *= tex * 1.35;
+    color = mix(color, whiteHot, pow(hot, 3.0) * 0.42);
+    color *= tex * 1.02;
     float rim = pow(1.0 - abs(dot(normalize(vNormal), normalize(cameraPosition - vWorldPosition))), 2.2);
-    color += vec3(1.0, 0.42, 0.08) * rim * 0.75;
+    color += vec3(1.0, 0.34, 0.06) * rim * 0.38;
     gl_FragColor = vec4(color, 1.0);
   }
 `;
@@ -102,10 +102,10 @@ const heatShellFragmentShader = `
     float sparks = smoothstep(0.58, 0.92, plasma);
     vec3 amber = vec3(1.0, 0.36, 0.04);
     vec3 yellow = vec3(1.0, 0.82, 0.22);
-    vec3 whiteHot = vec3(1.0, 0.96, 0.68);
+    vec3 whiteHot = vec3(1.0, 0.88, 0.52);
     vec3 color = mix(amber, yellow, plasma);
-    color = mix(color, whiteHot, sparks * 0.42);
-    float alpha = 0.075 + rim * 0.28 + sparks * 0.055;
+    color = mix(color, whiteHot, sparks * 0.26);
+    float alpha = 0.045 + rim * 0.16 + sparks * 0.03;
     alpha *= smoothstep(0.05, 0.24, rim + plasma * 0.28);
     gl_FragColor = vec4(color, alpha);
   }
@@ -161,7 +161,8 @@ export default function Sun() {
 
   return (
     <group>
-      <pointLight color="#fff2c7" intensity={590} distance={170} decay={1.55} />
+      <pointLight color="#fff2c7" intensity={560} distance={190} decay={1.45} />
+      <pointLight color="#ffb45f" intensity={34} distance={34} decay={1.2} />
       <mesh ref={sunRef} material={sunMaterial}>
         <sphereGeometry args={[2.15, 128, 128]} />
       </mesh>
