@@ -84,8 +84,9 @@ export default function App() {
         )}
 
         {showMainApp && <StoryBook3D />}
-        {phase !== 'loading' && <SpaceshipCursor />}
       </main>
+
+      {phase !== 'loading' && <SpaceshipCursor />}
     </>
   );
 }

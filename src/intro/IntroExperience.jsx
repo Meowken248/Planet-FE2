@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Stars, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
@@ -64,39 +64,51 @@ const nebulaFragmentShader = `
 
 const sections = [
   {
+    type: 'hero',
     kicker: 'SolarVerse',
-    title: 'Mở bản đồ sống của Hệ Mặt Trời',
-    body: 'Một hành trình 3D đưa bạn bay qua Mặt Trời, quỹ đạo và các hành tinh bằng chuyển động điện ảnh.',
+    title: 'Khám phá Hệ Mặt Trời trong chuyển động',
+    accent: 'chuyển động',
+    body: 'Bay qua các hành tinh, quỹ đạo thật, thế giới đang tự quay và một bản đồ sao sống động trước khi bước vào mô phỏng chính.',
   },
   {
-    kicker: 'Mặt Trời',
-    title: 'Trái tim rực sáng của mọi quỹ đạo',
-    body: 'Ánh sáng, năng lượng và lực hấp dẫn của Mặt Trời dẫn dắt toàn bộ khung cảnh.',
+    type: 'atlas',
+    kicker: 'Star Atlas',
+    title: 'Một bản đồ nơi mỗi quỹ đạo có câu chuyện riêng',
+    accent: 'quỹ đạo',
+    body: 'SolarVerse kết hợp cảm giác của thiên văn cổ điển với dữ liệu mô phỏng hiện đại, biến những con số lạnh thành một hành trình có chiều sâu.',
   },
   {
-    kicker: 'Hành tinh đá',
-    title: 'Những thế giới gần Mặt Trời',
-    body: 'Sao Thủy, Sao Kim, Trái Đất và Sao Hỏa hiện lên như các điểm dừng trong một chuyến bay khám phá.',
+    type: 'planets',
+    kicker: 'Planet Field Guide',
+    title: 'Tám thế giới, tám nhịp chuyển động',
+    accent: 'thế giới',
+    body: 'Mỗi hành tinh hiện như một trang ghi chú khoa học: texture, bán kính, ngày tự quay, độ nghiêng và khoảng cách đều được trình bày gọn gàng.',
   },
   {
-    kicker: 'Khổng lồ khí',
-    title: 'Vành đai, bão lớn và những hành tinh xa',
-    body: 'Sao Mộc, Sao Thổ, Thiên Vương và Hải Vương tạo nên phần sâu thẳm nhất của hành trình.',
+    type: 'data',
+    kicker: 'Real Orbit Mode',
+    title: 'Dữ liệu thật, chuyển động điện ảnh',
+    accent: 'Dữ liệu',
+    body: 'Vị trí quỹ đạo có thể lấy từ NASA/JPL Horizons theo ngày giờ, còn bán kính, tốc độ tự quay và độ nghiêng trục dựa trên NASA fact data.',
   },
   {
-    kicker: 'NASA/JPL',
-    title: 'Quỹ đạo có thể dùng dữ liệu thật',
-    body: 'Chế độ Thực tế kết nối JPL Horizons để mô phỏng vị trí hành tinh theo thời gian.',
+    type: 'tour',
+    kicker: 'Cinematic Tour',
+    title: 'Di chuyển từ hành tinh này sang hành tinh khác',
+    accent: 'hành tinh',
+    body: 'Camera được dẫn theo đường cong mềm, ánh sáng Mặt Trời tạo chiều sâu, orbit trail và halo giúp mỗi điểm dừng có cảm giác như một cảnh phim.',
   },
   {
-    kicker: 'Thiên thư',
-    title: 'Mở cuốn sách của Hệ Mặt Trời',
-    body: 'Chạm vào bìa sách để đánh thức các hành tinh, rồi bước vào mô phỏng SolarVerse.',
+    type: 'gateway',
+    kicker: 'Star Gate',
+    title: 'Kích hoạt cổng tinh đồ',
+    accent: 'cổng',
+    body: 'Chạm vào lõi tinh đồ để các hành tinh vào quỹ đạo, rồi bước thẳng vào mô phỏng SolarVerse.',
     final: true,
   },
 ];
 
-const bookPlanets = [
+const gatewayPlanets = [
   { name: 'Sao Thủy', texture: '/planets/mercury.jpg', className: 'mercury' },
   { name: 'Sao Kim', texture: '/planets/venus.jpg', className: 'venus' },
   { name: 'Trái Đất', texture: '/planets/earth.jpg', className: 'earth' },
@@ -106,6 +118,19 @@ const bookPlanets = [
   { name: 'Thiên Vương', texture: '/planets/uranus.jpg', className: 'uranus' },
   { name: 'Hải Vương', texture: '/planets/neptune.jpg', className: 'neptune' },
 ];
+
+const planetShowcase = [
+  { name: 'Sao Thủy', texture: '/planets/mercury.jpg', radius: '2.440 km', day: '58,6 ngày', tilt: '0,03°', distance: '57,9 triệu km' },
+  { name: 'Sao Kim', texture: '/planets/venus.jpg', radius: '6.052 km', day: '243 ngày', tilt: '177,4°', distance: '108,2 triệu km' },
+  { name: 'Trái Đất', texture: '/planets/earth.jpg', radius: '6.371 km', day: '23,9 giờ', tilt: '23,4°', distance: '149,6 triệu km' },
+  { name: 'Sao Hỏa', texture: '/planets/mars.jpg', radius: '3.390 km', day: '24,6 giờ', tilt: '25,2°', distance: '227,9 triệu km' },
+  { name: 'Sao Mộc', texture: '/planets/jupiter.jpg', radius: '69.911 km', day: '9,9 giờ', tilt: '3,1°', distance: '778,5 triệu km' },
+  { name: 'Sao Thổ', texture: '/planets/saturn.jpg', radius: '58.232 km', day: '10,7 giờ', tilt: '26,7°', distance: '1,43 tỷ km' },
+  { name: 'Thiên Vương', texture: '/planets/uranus.jpg', radius: '25.362 km', day: '17,2 giờ', tilt: '97,8°', distance: '2,87 tỷ km' },
+  { name: 'Hải Vương', texture: '/planets/neptune.jpg', radius: '24.622 km', day: '16,1 giờ', tilt: '28,3°', distance: '4,50 tỷ km' },
+];
+
+const statusBadges = ['LIVE', 'CACHE', 'FALLBACK'];
 
 function IntroPlanet({ textureUrl, position, radius, speed = 0.2, rings = false }) {
   const groupRef = useRef();
@@ -235,6 +260,151 @@ function OrbitRibbons() {
   );
 }
 
+function SectionTitle({ section }) {
+  const title = section.accent
+    ? section.title.split(section.accent)
+    : [section.title];
+
+  return (
+    <>
+      <p>{section.kicker}</p>
+      <h1>
+        {title[0]}
+        {section.accent && <em>{section.accent}</em>}
+        {title[1]}
+      </h1>
+      <span>{section.body}</span>
+    </>
+  );
+}
+
+function IntroNav({ onStart }) {
+  return (
+    <nav className="intro-nav">
+      <div className="intro-brand">
+        <i />
+        <strong>SolarVerse</strong>
+      </div>
+      <div className="intro-nav-links">
+        <a href="#intro-hero">Home</a>
+        <span>•</span>
+        <a href="#intro-planets">Planets</a>
+        <span>•</span>
+        <a href="#intro-data">Real Orbit</a>
+        <span>•</span>
+        <a href="#intro-gateway">Mission</a>
+      </div>
+      <button type="button" onClick={onStart}>Enter Simulation</button>
+    </nav>
+  );
+}
+
+function StarAtlasVisual() {
+  return (
+    <div className="star-atlas-visual" aria-hidden="true">
+      <span className="atlas-compass">N</span>
+      <i className="atlas-orbit one" />
+      <i className="atlas-orbit two" />
+      <i className="atlas-orbit three" />
+      <b className="atlas-node sun" />
+      <b className="atlas-node earth" />
+      <b className="atlas-node mars" />
+      <b className="atlas-node jupiter" />
+      <svg viewBox="0 0 320 220" role="img">
+        <path d="M28 146 C72 70 118 48 182 76 C235 99 262 78 294 34" />
+        <path d="M44 58 L79 92 L112 48 L151 84 L190 46 L231 72 L270 44" />
+        <circle cx="44" cy="58" r="3" />
+        <circle cx="79" cy="92" r="3" />
+        <circle cx="112" cy="48" r="3" />
+        <circle cx="151" cy="84" r="3" />
+        <circle cx="190" cy="46" r="3" />
+        <circle cx="231" cy="72" r="3" />
+        <circle cx="270" cy="44" r="3" />
+      </svg>
+    </div>
+  );
+}
+
+function PlanetGuide() {
+  return (
+    <div className="planet-guide">
+      {planetShowcase.map((planet, index) => (
+        <article key={planet.name} className="planet-guide-card" style={{ '--planet-delay': `${index * 55}ms` }}>
+          <div className="planet-guide-orb" style={{ backgroundImage: `url(${planet.texture})` }} />
+          <strong>{planet.name}</strong>
+          <p>{planet.distance}</p>
+          <dl>
+            <div>
+              <dt>Bán kính</dt>
+              <dd>{planet.radius}</dd>
+            </div>
+            <div>
+              <dt>Ngày</dt>
+              <dd>{planet.day}</dd>
+            </div>
+            <div>
+              <dt>Nghiêng</dt>
+              <dd>{planet.tilt}</dd>
+            </div>
+          </dl>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function RealDataPanel() {
+  return (
+    <div className="real-data-panel">
+      <div className="data-status-row">
+        {statusBadges.map((badge) => (
+          <span key={badge}>{badge}</span>
+        ))}
+      </div>
+      <div className="data-timeline">
+        <i />
+        <b />
+      </div>
+      <div className="data-orbit-preview">
+        <span />
+        <span />
+        <span />
+        <strong>UTC 2026-06-10</strong>
+      </div>
+      <dl>
+        <div>
+          <dt>Nguồn quỹ đạo</dt>
+          <dd>JPL Horizons</dd>
+        </div>
+        <div>
+          <dt>Fact data</dt>
+          <dd>NASA</dd>
+        </div>
+        <div>
+          <dt>Animate</dt>
+          <dd>Nội suy cache</dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
+function TourPathVisual() {
+  return (
+    <div className="tour-path-visual" aria-hidden="true">
+      <svg viewBox="0 0 520 280">
+        <path d="M36 214 C112 82 204 70 274 146 C346 226 408 118 484 54" />
+        <circle cx="36" cy="214" r="11" />
+        <circle cx="156" cy="96" r="18" />
+        <circle cx="274" cy="146" r="14" />
+        <circle cx="398" cy="128" r="24" />
+        <circle cx="484" cy="54" r="10" />
+      </svg>
+      <span className="tour-ship" />
+    </div>
+  );
+}
+
 function SpaceGate({ progress }) {
   const groupRef = useRef();
   const intensity = THREE.MathUtils.smoothstep(progress, 0.78, 0.98);
@@ -289,13 +459,11 @@ function IntroScene({ progress, pointer }) {
 
   return (
     <>
-      <color attach="background" args={['#02040b']} />
       <fog attach="fog" args={['#02040b', 22, 88]} />
-      <NebulaBackdrop />
-      <ambientLight intensity={0.18} />
+      <ambientLight intensity={0.12} />
       <pointLight position={[0, 0, 0]} color="#ffe1a3" intensity={95} distance={88} />
-      <pointLight position={[-7, 5, -11]} color="#79e5ff" intensity={18} distance={36} />
-      <Stars radius={120} depth={70} count={2600} factor={3.8} saturation={0.18} fade speed={0.3} />
+      <pointLight position={[-7, 5, -11]} color="#79e5ff" intensity={9} distance={36} />
+      <Stars radius={180} depth={110} count={11000} factor={5.2} saturation={0.15} fade speed={0.22} />
       <StarRiver />
       <OrbitRibbons />
 
@@ -324,13 +492,27 @@ function IntroScene({ progress, pointer }) {
 export default function IntroExperience({ onStart }) {
   const [progress, setProgress] = useState(0);
   const [launching, setLaunching] = useState(false);
-  const [bookOpen, setBookOpen] = useState(false);
+  const [gatewayOpen, setGatewayOpen] = useState(false);
   const pointerRef = useRef({ x: 0, y: 0 });
+  const scrollRafRef = useRef(0);
+  const nextProgressRef = useRef(0);
 
   const handleScroll = useCallback((event) => {
     const target = event.currentTarget;
-    const nextProgress = target.scrollTop / Math.max(1, target.scrollHeight - target.clientHeight);
-    setProgress(nextProgress);
+    nextProgressRef.current = target.scrollTop / Math.max(1, target.scrollHeight - target.clientHeight);
+    if (scrollRafRef.current) return;
+    scrollRafRef.current = window.requestAnimationFrame(() => {
+      setProgress(nextProgressRef.current);
+      scrollRafRef.current = 0;
+    });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (scrollRafRef.current) {
+        window.cancelAnimationFrame(scrollRafRef.current);
+      }
+    };
   }, []);
 
   const handlePointerMove = useCallback((event) => {
@@ -344,8 +526,109 @@ export default function IntroExperience({ onStart }) {
     window.setTimeout(onStart, 1450);
   };
 
+  const renderSectionBody = (section) => {
+    if (section.type === 'hero') {
+      return (
+        <>
+          <SectionTitle section={section} />
+          <div className="intro-actions">
+            <button type="button" onClick={() => document.getElementById('intro-gateway')?.scrollIntoView({ behavior: 'smooth' })}>
+              Bắt đầu hành trình
+            </button>
+            <button type="button" onClick={() => document.getElementById('intro-planets')?.scrollIntoView({ behavior: 'smooth' })}>
+              Xem hành tinh
+            </button>
+          </div>
+          <small>Scroll để mở bản đồ sao</small>
+        </>
+      );
+    }
+
+    if (section.type === 'atlas') {
+      return (
+        <>
+          <SectionTitle section={section} />
+          <StarAtlasVisual />
+        </>
+      );
+    }
+
+    if (section.type === 'planets') {
+      return (
+        <>
+          <SectionTitle section={section} />
+          <PlanetGuide />
+        </>
+      );
+    }
+
+    if (section.type === 'data') {
+      return (
+        <>
+          <SectionTitle section={section} />
+          <RealDataPanel />
+        </>
+      );
+    }
+
+    if (section.type === 'tour') {
+      return (
+        <>
+          <SectionTitle section={section} />
+          <TourPathVisual />
+        </>
+      );
+    }
+
+    return (
+      <>
+        <SectionTitle section={section} />
+        <div className={`star-gateway ${gatewayOpen ? 'is-open' : ''}`}>
+          <button
+            type="button"
+            className="gateway-stage"
+            onClick={() => setGatewayOpen(true)}
+            aria-label="Kích hoạt cổng tinh đồ"
+          >
+            <span className="gateway-aura" />
+            <span className="gateway-ring outer" />
+            <span className="gateway-ring middle" />
+            <span className="gateway-ring inner" />
+            <span className="gateway-grid" />
+            <span className="gateway-core">
+              <strong>SolarVerse</strong>
+              <small>{gatewayOpen ? 'Orbit Locked' : 'Activate Atlas'}</small>
+            </span>
+            <span className="gateway-planets" aria-hidden="true">
+              {gatewayPlanets.map((planet, planetIndex) => (
+                <span
+                  key={planet.name}
+                  className={`gateway-planet ${planet.className}`}
+                  style={{
+                    '--planet-index': planetIndex,
+                    backgroundImage: `url(${planet.texture})`,
+                  }}
+                >
+                  <i>{planet.name}</i>
+                </span>
+              ))}
+            </span>
+          </button>
+
+          <div className="gateway-actions">
+            <button type="button" className="journey-button" onClick={gatewayOpen ? startJourney : () => setGatewayOpen(true)}>
+              <strong>{gatewayOpen ? 'Bước vào SolarVerse' : 'Kích hoạt cổng'}</strong>
+              <i />
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   return (
     <section className={`intro-experience ${launching ? 'is-launching' : ''}`} onPointerMove={handlePointerMove}>
+      <IntroNav onStart={startJourney} />
       <Canvas camera={{ fov: 42, near: 0.1, far: 220, position: [0, 8, 32] }} dpr={[1, 1.7]} className="intro-canvas">
         <Suspense fallback={null}>
           <IntroScene progress={progress} pointer={pointerRef.current} />
@@ -354,58 +637,13 @@ export default function IntroExperience({ onStart }) {
 
       <div className="intro-scroll" onScroll={handleScroll}>
         {sections.map((section, index) => (
-          <article key={section.title} className={`intro-section ${section.final ? `final ${bookOpen ? 'is-book-open' : ''}` : ''}`}>
+          <article
+            id={`intro-${section.type}`}
+            key={section.title}
+            className={`intro-section intro-section-${section.type} ${section.final ? `final ${gatewayOpen ? 'is-gateway-open' : ''}` : ''}`}
+          >
             <div className="intro-copy" style={{ '--section-index': index }}>
-              <p>{section.kicker}</p>
-              <h1>{section.title}</h1>
-              <span>{section.body}</span>
-              {section.final && (
-                <div className={`cosmic-book ${bookOpen ? 'is-open' : ''}`}>
-                  <button
-                    type="button"
-                    className="book-stage"
-                    onClick={() => setBookOpen(true)}
-                    aria-label="Mở cuốn sách hành tinh"
-                  >
-                    <span className="book-shadow" />
-                    <span className="book-spine" />
-                    <span className="book-page left">
-                      <span className="page-lines" />
-                      <span className="page-orbit" />
-                    </span>
-                    <span className="book-page right">
-                      <span className="page-lines" />
-                      <span className="page-orbit" />
-                    </span>
-                    <span className="book-cover">
-                      <span className="cover-sigil" />
-                      <strong>SolarVerse</strong>
-                      <small>Atlas of Planets</small>
-                    </span>
-                    <span className="book-planets" aria-hidden="true">
-                      {bookPlanets.map((planet, planetIndex) => (
-                        <span
-                          key={planet.name}
-                          className={`book-planet ${planet.className}`}
-                          style={{
-                            '--planet-index': planetIndex,
-                            backgroundImage: `url(${planet.texture})`,
-                          }}
-                        >
-                          <i>{planet.name}</i>
-                        </span>
-                      ))}
-                    </span>
-                  </button>
-
-                  <div className="book-actions">
-                    <button type="button" className="journey-button" onClick={bookOpen ? startJourney : () => setBookOpen(true)}>
-                      <strong>{bookOpen ? 'Bước vào SolarVerse' : 'Mở cuốn sách'}</strong>
-                      <i />
-                    </button>
-                  </div>
-                </div>
-              )}
+              {renderSectionBody(section)}
             </div>
           </article>
         ))}
@@ -414,7 +652,7 @@ export default function IntroExperience({ onStart }) {
       <div className="intro-progress" aria-hidden="true">
         <span style={{ transform: `scaleX(${Math.max(0.04, progress)})` }} />
       </div>
-      <div className="intro-hud">Scroll để mở cổng</div>
+      <div className="intro-hud">Scroll để mở bản đồ sao</div>
     </section>
   );
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect, useRef } from 'react';
 
-const trailCount = 9;
+const trailCount = 14;
 
 export default function SpaceshipCursor() {
   const cursorRef = useRef(null);
@@ -66,16 +66,10 @@ export default function SpaceshipCursor() {
         />
       ))}
       <span ref={cursorRef} className="cursor-ship">
-        <svg viewBox="0 0 32 32" role="img">
-          <path
-            d="M16 2 27 29 16 23 5 29 16 2Z"
-            fill="#eef8ff"
-            stroke="#73d8ff"
-            strokeWidth="1.6"
-            strokeLinejoin="round"
-          />
-          <path d="M16 7 20 22 16 20 12 22 16 7Z" fill="#2d7dff" opacity="0.9" />
-          <circle cx="16" cy="16" r="2.6" fill="#ffcf66" />
+        <svg viewBox="0 0 36 36" role="img">
+          <path d="M18 2.8 21.8 13.5 33.2 13.8 24.1 20.7 27.4 31.6 18 25.1 8.6 31.6 11.9 20.7 2.8 13.8 14.2 13.5 18 2.8Z" fill="#fff6d6" />
+          <path d="M18 7.6 20.2 15.2 28 15.4 21.8 20.2 24 27.6 18 23.2 12 27.6 14.2 20.2 8 15.4 15.8 15.2 18 7.6Z" fill="#86e5ff" opacity="0.72" />
+          <circle cx="18" cy="18" r="3.2" fill="#ffffff" />
         </svg>
       </span>
     </div>
