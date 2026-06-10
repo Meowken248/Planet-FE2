@@ -6,6 +6,7 @@ import GameCompletePanel from './components/ui/GameCompletePanel.jsx';
 import GameFailedPanel from './components/ui/GameFailedPanel.jsx';
 import InfoPanel from './components/ui/InfoPanel.jsx';
 import MissionControl from './components/ui/MissionControl.jsx';
+import PlanetShooterGame from './components/missions/PlanetShooterGame.jsx';
 import PlanetList from './components/ui/PlanetList.jsx';
 import ProgressTracker from './components/ui/ProgressTracker.jsx';
 import QuizGamePanel from './components/ui/QuizGamePanel.jsx';
@@ -84,6 +85,7 @@ export default function App() {
         )}
 
         {showMainApp && <StoryBook3D />}
+        {showMainApp && <PlanetShooterGame />}
       </main>
 
       {phase !== 'loading' && <SpaceshipCursor />}

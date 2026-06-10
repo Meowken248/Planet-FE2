@@ -430,6 +430,52 @@ export const useSolarStore = create((set) => ({
     }
     return state;
   }),
+  openShooterMission: () => set((state) => {
+    if (!state.selectedPlanetId) {
+      return state;
+    }
+
+    return {
+      game: {
+        ...state.game,
+        activePlanetId: state.selectedPlanetId,
+        lastResult: null,
+        status: 'shooter',
+      },
+    };
+  }),
+  closeShooterMission: () => set((state) => ({
+    game: {
+      ...state.game,
+      activePlanetId: null,
+      lastResult: null,
+      status: 'playing',
+    },
+  })),
+  completeShooterMission: (planetId) => set((state) => {
+    const completedPlanetIds = Array.from(
+      new Set([...state.game.completedPlanetIds, planetId])
+    );
+    const status = completedPlanetIds.length >= 8 ? 'complete' : 'playing';
+
+    return {
+      game: {
+        ...state.game,
+        activePlanetId: null,
+        completedPlanetIds,
+        lastResult: 'shooter-passed',
+        status,
+      },
+      mission: {
+        ...state.mission,
+        signal: status === 'complete' ? 'HOÀN THÀNH' : 'SẴN SÀNG',
+        log: [
+          createLog(`Đã hoàn thành nhiệm vụ bắn ngang của ${planetId.toUpperCase()}.`),
+          ...state.mission.log,
+        ].slice(0, 8),
+      },
+    };
+  }),
   openStoryBook: () => set({ storyBookOpen: true }),
   closeStoryBook: () => set({ storyBookOpen: false }),
   startCinematicTour: () =>

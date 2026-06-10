@@ -21,6 +21,7 @@ export default function InfoPanel() {
   const collapsed = useSolarStore((state) => state.collapsedPanels.info);
   const openStoryBook = useSolarStore((state) => state.openStoryBook);
   const openQuiz = useSolarStore((state) => state.openQuiz);
+  const openShooterMission = useSolarStore((state) => state.openShooterMission);
   const planet = planetMap[selectedPlanetId];
   const isMissionTarget = mission.status === 'scan' && mission.targetId === planet.id;
   const scanProgress = isMissionTarget ? 100 : mission.targetId === planet.id ? Math.round(mission.progress * 100) : 34;
@@ -93,6 +94,14 @@ export default function InfoPanel() {
       </div>
 
       <div className="info-actions">
+        <button type="button" className="action-btn mission-game-btn" onClick={openShooterMission}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M5 16c-1 2-2 3-4 4 1-3 1-5 3-7" />
+            <path d="M9 15 4 10l5-2 5-5 7 7-5 5-2 5z" />
+            <path d="m15 9-6 6" />
+          </svg>
+          Hoàn thành nhiệm vụ
+        </button>
         <button type="button" className="action-btn story-btn" onClick={openStoryBook}>
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />

@@ -1,0 +1,46 @@
+{
+  "note": "Planet Sky Assault uses local planet textures plus downloaded NASA Images API nebula backgrounds for the current build. It is structured for CC0/public-domain shooter sprites.",
+  "downloadedAssets": [
+    "public/missions/shooter/nasa/space-bg-1.jpg",
+    "public/missions/shooter/nasa/space-bg-2.jpg",
+    "public/missions/shooter/nasa/space-bg-3.jpg",
+    "public/missions/shooter/nasa/space-bg-4.jpg",
+    "public/missions/shooter/nasa-assets/hazard-asteroid.jpg",
+    "public/missions/shooter/nasa-assets/weapon-plasma.jpg",
+    "public/boss/processed/1781075547319_781607616673702390_781607616673702390_462ca4f6b3f0c05f56092e7c86b84da1.png",
+    "public/boss/bossmini/ancient_giant.png",
+    "public/boss/bossmini/bossnbv_2.png",
+    "public/boss/bossmini/sandfield_lord.png",
+    "public/boss/bossmini/void_phantom_-_power.png",
+    "public/boss/vatpham/processed/vatpham-items.png",
+    "public/boss/vatpham/pngtree-minecraft-game-items-and-blocks-display-png-image_18838920.webp",
+    "public/phithuyen/processed/player-ship.png",
+    "public/phithuyen/a7s0chwkt.webp"
+  ],
+  "sources": [
+    {
+      "name": "Kenney Space Shooter Redux",
+      "url": "https://kenney.nl/assets/space-shooter-redux",
+      "license": "Creative Commons CC0",
+      "intendedUse": "ship, laser, enemy and power-up sprites"
+    },
+    {
+      "name": "Kenney Space Shooter Extension",
+      "url": "https://kenney.nl/assets/space-shooter-extension",
+      "license": "Creative Commons CC0",
+      "intendedUse": "additional ships and space shooter props"
+    },
+    {
+      "name": "NASA Open APIs and NASA public imagery",
+      "url": "https://api.nasa.gov/",
+      "license": "Public NASA imagery, verify per asset",
+      "intendedUse": "planet reference images, real space backgrounds and educational metadata"
+    },
+    {
+      "name": "OpenGameArt",
+      "url": "https://opengameart.org/",
+      "license": "Varies by asset, verify before import",
+      "intendedUse": "optional sound effects, music and replacement sprite art"
+    }
+  ]
+}
