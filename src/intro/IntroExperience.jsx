@@ -89,11 +89,22 @@ const sections = [
     body: 'Chế độ Thực tế kết nối JPL Horizons để mô phỏng vị trí hành tinh theo thời gian.',
   },
   {
-    kicker: 'Khởi hành',
-    title: 'Lên phi thuyền và bước qua cổng không gian',
-    body: 'Khi cổng mở, SolarVerse sẽ chuyển bạn vào mô phỏng Hệ Mặt Trời chính.',
+    kicker: 'Thiên thư',
+    title: 'Mở cuốn sách của Hệ Mặt Trời',
+    body: 'Chạm vào bìa sách để đánh thức các hành tinh, rồi bước vào mô phỏng SolarVerse.',
     final: true,
   },
+];
+
+const bookPlanets = [
+  { name: 'Sao Thủy', texture: '/planets/mercury.jpg', className: 'mercury' },
+  { name: 'Sao Kim', texture: '/planets/venus.jpg', className: 'venus' },
+  { name: 'Trái Đất', texture: '/planets/earth.jpg', className: 'earth' },
+  { name: 'Sao Hỏa', texture: '/planets/mars.jpg', className: 'mars' },
+  { name: 'Sao Mộc', texture: '/planets/jupiter.jpg', className: 'jupiter' },
+  { name: 'Sao Thổ', texture: '/planets/saturn.jpg', className: 'saturn' },
+  { name: 'Thiên Vương', texture: '/planets/uranus.jpg', className: 'uranus' },
+  { name: 'Hải Vương', texture: '/planets/neptune.jpg', className: 'neptune' },
 ];
 
 function IntroPlanet({ textureUrl, position, radius, speed = 0.2, rings = false }) {
@@ -313,6 +324,7 @@ function IntroScene({ progress, pointer }) {
 export default function IntroExperience({ onStart }) {
   const [progress, setProgress] = useState(0);
   const [launching, setLaunching] = useState(false);
+  const [bookOpen, setBookOpen] = useState(false);
   const pointerRef = useRef({ x: 0, y: 0 });
 
   const handleScroll = useCallback((event) => {
@@ -342,16 +354,57 @@ export default function IntroExperience({ onStart }) {
 
       <div className="intro-scroll" onScroll={handleScroll}>
         {sections.map((section, index) => (
-          <article key={section.title} className={`intro-section ${section.final ? 'final' : ''}`}>
+          <article key={section.title} className={`intro-section ${section.final ? `final ${bookOpen ? 'is-book-open' : ''}` : ''}`}>
             <div className="intro-copy" style={{ '--section-index': index }}>
               <p>{section.kicker}</p>
               <h1>{section.title}</h1>
               <span>{section.body}</span>
               {section.final && (
-                <button type="button" className="journey-button" onClick={startJourney}>
-                  <strong>Bắt đầu hành trình</strong>
-                  <i />
-                </button>
+                <div className={`cosmic-book ${bookOpen ? 'is-open' : ''}`}>
+                  <button
+                    type="button"
+                    className="book-stage"
+                    onClick={() => setBookOpen(true)}
+                    aria-label="Mở cuốn sách hành tinh"
+                  >
+                    <span className="book-shadow" />
+                    <span className="book-spine" />
+                    <span className="book-page left">
+                      <span className="page-lines" />
+                      <span className="page-orbit" />
+                    </span>
+                    <span className="book-page right">
+                      <span className="page-lines" />
+                      <span className="page-orbit" />
+                    </span>
+                    <span className="book-cover">
+                      <span className="cover-sigil" />
+                      <strong>SolarVerse</strong>
+                      <small>Atlas of Planets</small>
+                    </span>
+                    <span className="book-planets" aria-hidden="true">
+                      {bookPlanets.map((planet, planetIndex) => (
+                        <span
+                          key={planet.name}
+                          className={`book-planet ${planet.className}`}
+                          style={{
+                            '--planet-index': planetIndex,
+                            backgroundImage: `url(${planet.texture})`,
+                          }}
+                        >
+                          <i>{planet.name}</i>
+                        </span>
+                      ))}
+                    </span>
+                  </button>
+
+                  <div className="book-actions">
+                    <button type="button" className="journey-button" onClick={bookOpen ? startJourney : () => setBookOpen(true)}>
+                      <strong>{bookOpen ? 'Bước vào SolarVerse' : 'Mở cuốn sách'}</strong>
+                      <i />
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
           </article>
