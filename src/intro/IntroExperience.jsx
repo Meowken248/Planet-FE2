@@ -1,240 +1,213 @@
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import './intro-dashboard.css';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { PresentationControls, Float, Stars, useTexture, Text } from '@react-three/drei';
-import { EffectComposer, Bloom, ChromaticAberration } from '@react-three/postprocessing';
-import { BlendFunction } from 'postprocessing';
-import * as THREE from 'three';
-import gsap from 'gsap';
 
-// --- Typewriter Component ---
-function TypewriterText({ text, speed = 30 }) {
-  const [displayed, setDisplayed] = useState('');
-  
-  useEffect(() => {
-    let index = 0;
-    setDisplayed('');
-    const timer = setInterval(() => {
-      if (index < text.length) {
-        setDisplayed((prev) => prev + text.charAt(index));
-        index++;
-      } else {
-        clearInterval(timer);
-      }
-    }, speed);
-    return () => clearInterval(timer);
-  }, [text, speed]);
-  
-  return <span>{displayed}<span className="typewriter-cursor">_</span></span>;
+const heroVideo =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_120549_0cd82c36-56b3-4dd9-b190-069cfc3a623f.mp4';
+
+const missionVideo =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_132944_a0d124bb-eaa1-4082-aa30-2310efb42b4b.mp4';
+
+const solutionVideo =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_125119_8e5ae31c-0021-4396-bc08-f7aebeb877a2.mp4';
+
+const planets = [
+  ['Sao Thủy', 'Nhanh nhất', 'Thế giới đá sát Mặt Trời, đầy miệng hố và nhiệt độ cực đoan.', '/planets/mercury.jpg'],
+  ['Sao Kim', 'Nóng nhất', 'Mây axit, khí quyển dày và hiệu ứng nhà kính dữ dội.', '/venus/map.jpg'],
+  ['Trái Đất', 'Có sự sống', 'Đại dương, mây, khí quyển và sinh quyển xanh của chúng ta.', '/earth/map.jpg'],
+  ['Sao Hỏa', 'Hành tinh đỏ', 'Bụi sắt, núi lửa cổ và dấu vết nước từng chảy qua.', '/planets/mars.jpg'],
+  ['Sao Mộc', 'Lớn nhất', 'Vua bão khí khổng lồ với Vết Đỏ Lớn và nhiều mặt trăng.', '/planets/jupiter.jpg'],
+  ['Sao Thổ', 'Vành đai', 'Một sân khấu băng đá khổng lồ xoay quanh hành tinh khí.', '/planets/saturn.jpg'],
+  ['Thiên Vương', 'Nghiêng ngang', 'Hành tinh băng xanh nhạt lăn quanh Mặt Trời theo trục lạ.', '/planets/uranus.jpg'],
+  ['Hải Vương', 'Gió mạnh', 'Rìa xanh sâu với những cơn gió siêu nhanh và bão lạnh.', '/planets/neptune.jpg'],
+];
+
+const features = [
+  ['Hồ sơ hành tinh', 'Đọc dữ liệu, mô tả, dấu hiệu nổi bật và thông tin NASA theo từng hành tinh.'],
+  ['Camera điện ảnh', 'Bấm hành tinh, camera lia tới trước khi mở hồ sơ riêng.'],
+  ['Nhiệm vụ game', 'Mỗi hành tinh có màu nền, quái, boss và độ khó riêng.'],
+  ['Trải nghiệm 3D', 'Quỹ đạo, bề mặt, ánh sáng và chuyển động tạo cảm giác như phòng chiếu thiên văn.'],
+];
+
+function useRevealWords(text) {
+  return text.split(' ').map((word, index) => (
+    <span key={`${word}-${index}`} style={{ '--word-index': index }}>
+      {word}
+    </span>
+  ));
 }
 
-// --- 3D Components ---
-function BlackHoleHologram() {
-  const diskRef = useRef();
-  const auraRef = useRef();
-
-  useFrame((_, delta) => {
-    if (diskRef.current) diskRef.current.rotation.z += delta * 0.5;
-    if (auraRef.current) auraRef.current.rotation.y += delta * 0.2;
-  });
-
+function SocialIcon({ label }) {
   return (
-    <group position={[0, 0, 0]}>
-      {/* Event Horizon */}
-      <mesh>
-        <sphereGeometry args={[1.5, 64, 64]} />
-        <meshBasicMaterial color="#000000" />
-      </mesh>
-      
-      {/* Photon Sphere */}
-      <mesh ref={auraRef}>
-        <sphereGeometry args={[1.65, 64, 64]} />
-        <meshBasicMaterial color={[5.0, 1.2, 0.2]} transparent opacity={0.6} blending={THREE.AdditiveBlending} toneMapped={false} />
-      </mesh>
-
-      {/* Accretion Disk */}
-      <mesh ref={diskRef} rotation-x={Math.PI / 2.2}>
-        <torusGeometry args={[2.8, 0.5, 16, 128]} />
-        <meshBasicMaterial color={[4.0, 1.5, 0.4]} transparent opacity={0.8} blending={THREE.AdditiveBlending} toneMapped={false} />
-      </mesh>
-      
-      <mesh rotation-x={Math.PI / 2.2} rotation-y={0.1}>
-        <torusGeometry args={[4.2, 0.2, 8, 128]} />
-        <meshBasicMaterial color={[1.0, 0.5, 0.1]} transparent opacity={0.4} blending={THREE.AdditiveBlending} toneMapped={false} />
-      </mesh>
-    </group>
+    <a className="mind-social liquid-glass" href="#home" aria-label={label}>
+      {label.slice(0, 1)}
+    </a>
   );
 }
 
-function IntroPlanet({ textureUrl, position, radius, speed, name }) {
-  const texture = useTexture(textureUrl);
-  const ref = useRef();
-  const angleRef = useRef(Math.random() * Math.PI * 2);
-
-  useFrame((_, delta) => {
-    if (!ref.current) return;
-    angleRef.current += delta * speed;
-    const distance = Math.sqrt(position[0]*position[0] + position[2]*position[2]);
-    ref.current.position.x = Math.cos(angleRef.current) * distance;
-    ref.current.position.z = Math.sin(angleRef.current) * distance;
-    ref.current.rotation.y += delta * 0.5;
-  });
-
+function PlanetCard({ planet, index }) {
   return (
-    <group ref={ref}>
-      <mesh>
-        <sphereGeometry args={[radius, 64, 64]} />
-        <meshStandardMaterial map={texture} roughness={0.6} metalness={0.2} />
-      </mesh>
-      {/* Orbit Trail */}
-      <mesh rotation-x={Math.PI / 2}>
-        <ringGeometry args={[radius + 0.1, radius + 0.12, 64]} />
-        <meshBasicMaterial color={[0.5, 1.0, 2.0]} transparent opacity={0.4} blending={THREE.AdditiveBlending} side={THREE.DoubleSide} toneMapped={false} />
-      </mesh>
-      <Text 
-        position={[0, radius + 0.4, 0]} 
-        fontSize={0.25} 
-        color="#a8e6cf"
-        anchorX="center" 
-        anchorY="middle"
-        outlineWidth={0.02}
-        outlineColor="#000000"
-      >
-        {name}
-      </Text>
-    </group>
+    <article className="mind-planet-card" style={{ '--card-index': index }}>
+      <div className="mind-planet-icon" style={{ backgroundImage: `url(${planet[3]})` }}>
+        {planet[0] === 'Sao Thổ' && <i />}
+      </div>
+      <h3>{planet[0]}</h3>
+      <strong>{planet[1]}</strong>
+      <p>{planet[2]}</p>
+    </article>
   );
 }
 
-function DashboardScene() {
-  return (
-    <>
-      <fog attach="fog" args={['#02040b', 10, 50]} />
-      <ambientLight intensity={0.2} />
-      <pointLight position={[0, 0, 0]} color="#ffe1a3" intensity={50} distance={40} />
-      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-      
-      <PresentationControls 
-        global 
-        config={{ mass: 2, tension: 500 }} 
-        snap={{ mass: 4, tension: 1500 }} 
-        rotation={[0.2, 0.4, 0]} 
-        polar={[-Math.PI / 3, Math.PI / 3]} 
-        azimuth={[-Math.PI / 1.4, Math.PI / 2]}
-      >
-        <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.5}>
-          <BlackHoleHologram />
-          
-          <IntroPlanet name="EARTH" textureUrl="/planets/earth.jpg" position={[-4, 0, -4]} radius={0.5} speed={0.4} />
-          <IntroPlanet name="MARS" textureUrl="/planets/mars.jpg" position={[6, 0, -2]} radius={0.35} speed={0.3} />
-          <IntroPlanet name="JUPITER" textureUrl="/planets/jupiter.jpg" position={[-8, 0, 5]} radius={1.0} speed={0.15} />
-        </Float>
-      </PresentationControls>
-    </>
-  );
-}
-
-// --- Main Component ---
 export default function IntroExperience({ onStart }) {
-  const [launching, setLaunching] = useState(false);
-  const [time, setTime] = useState(new Date().toLocaleTimeString());
+  const [email, setEmail] = useState('');
+  const [spotlight, setSpotlight] = useState({ x: 50, y: 38 });
+  const missionText = useRevealWords(
+    'Chúng tôi xây dựng một không gian nơi tò mò gặp rõ ràng, nơi mỗi hành tinh có hồ sơ riêng, mỗi nhiệm vụ có nhịp chơi riêng và mỗi lần lướt xuống mở ra một lớp vũ trụ mới.'
+  );
+  const secondText = useRevealWords(
+    'Ít nhiễu hơn, nhiều chiều sâu hơn, nhiều chuyển động hơn để người chơi hiểu Hệ Mặt Trời bằng cả mắt, tay và trí tưởng tượng.'
+  );
+  const ctaVideoRef = useRef(null);
 
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
-    return () => clearInterval(timer);
+    const video = ctaVideoRef.current;
+    if (!video) return;
+    video.play?.().catch(() => {});
   }, []);
 
-  const handleStart = () => {
-    if (launching) return;
-    setLaunching(true);
-    gsap.to('.intro-dashboard-container', { opacity: 0, scale: 1.05, duration: 1.2, ease: "power2.inOut" });
-    setTimeout(onStart, 1200);
-  };
+  const handleSubscribe = useCallback((event) => {
+    event.preventDefault();
+    setEmail('');
+  }, []);
+
+  const handlePointerMove = useCallback((event) => {
+    const x = (event.clientX / window.innerWidth) * 100;
+    const y = (event.clientY / window.innerHeight) * 100;
+    setSpotlight({ x, y });
+  }, []);
 
   return (
-    <section className={`intro-dashboard-container ${launching ? 'is-launching' : ''}`}>
-      {/* 3D Background */}
-      <div className="dashboard-canvas-wrapper">
-        <Canvas camera={{ fov: 45, position: [0, 2, 12] }} dpr={[1, 1.5]}>
-          <Suspense fallback={null}>
-            <DashboardScene />
-            <EffectComposer disableNormalPass>
-              <Bloom luminanceThreshold={0.5} mipmapBlur intensity={1.5} />
-              <ChromaticAberration blendFunction={BlendFunction.NORMAL} offset={new THREE.Vector2(0.001, 0.001)} />
-            </EffectComposer>
-          </Suspense>
-        </Canvas>
-      </div>
+    <main
+      className="mind-home"
+      id="home"
+      onPointerMove={handlePointerMove}
+      style={{ '--spotlight-x': `${spotlight.x}%`, '--spotlight-y': `${spotlight.y}%` }}
+    >
+      <nav className="mind-nav">
+        <a className="mind-logo" href="#home">
+          <span><i /></span>
+          <strong>SolarVerse</strong>
+        </a>
+        <div className="mind-links">
+          <a href="#home">Home</a>
+          <b>•</b>
+          <a href="#planets">How It Works</a>
+          <b>•</b>
+          <a href="#mission">Philosophy</a>
+          <b>•</b>
+          <a href="#cta">Use Cases</a>
+        </div>
+        <div className="mind-socials">
+          <SocialIcon label="Instagram" />
+          <SocialIcon label="Linkedin" />
+          <SocialIcon label="Twitter" />
+        </div>
+      </nav>
 
-      {/* UI Overlay */}
-      <div className="dashboard-ui-layer">
-        
-        {/* Left Panel */}
-        <aside className="dashboard-left-panel liquid-glass-strong">
-          <div className="dashboard-brand">
-            <span className="brand-orb" />
-            <h1>SOLARVERSE</h1>
-            <small>ARCHIVE & MISSIONS</small>
+      <section className="mind-hero">
+        <video className="mind-hero-video" src={heroVideo} autoPlay loop muted playsInline />
+        <div className="mind-hero-fade" />
+        <div className="mind-hero-content">
+          <div className="mind-avatar-row">
+            <span />
+            <span />
+            <span />
+            <p>7,000+ explorers already launched</p>
           </div>
-          
-          <div className="dashboard-lore">
-            <p className="lore-text">
-              <TypewriterText text="Hệ thống đã kết nối. Chào mừng đến với SolarVerse - nơi lưu trữ dữ liệu các hành tinh, các nhiệm vụ phòng thủ không gian và hệ sinh thái đa chiều. Dùng chuột xoay màn hình để khám phá tọa độ không gian." speed={25} />
-            </p>
-          </div>
+          <h1>
+            Get <em>Inspired</em> with Space
+          </h1>
+          <p className="mind-subtitle">
+            Khám phá các hành tinh, hồ sơ 3D, nhiệm vụ game và một hành trình đi từ Trái Đất tới rìa Hệ Mặt Trời.
+          </p>
+          <form className="mind-form liquid-glass" onSubmit={handleSubscribe}>
+            <input
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              type="email"
+              placeholder="your@email.com"
+            />
+            <button type="submit">SUBSCRIBE</button>
+          </form>
+        </div>
+      </section>
 
-          <div className="dashboard-actions">
-            <button className="btn-launch liquid-glass" onClick={handleStart}>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M5 12h14" />
-                <path d="m12 5 7 7-7 7" />
-              </svg>
-              KHỞI ĐỘNG HÀNH TRÌNH
+      <section className="mind-search" id="planets">
+        <h2>
+          Exploration has <em>changed.</em>
+          <br />
+          Have you?
+        </h2>
+        <p>
+          Mỗi hành tinh trong SolarVerse không chỉ là một quả cầu quay. Nó là một hồ sơ, một nhiệm vụ và một thế giới có cá tính riêng.
+        </p>
+        <div className="mind-planet-grid">
+          {planets.map((planet, index) => (
+            <PlanetCard key={planet[0]} planet={planet} index={index} />
+          ))}
+        </div>
+        <small>If you do not explore the questions, the universe keeps them.</small>
+      </section>
+
+      <section className="mind-mission" id="mission">
+        <video src={missionVideo} autoPlay loop muted playsInline />
+        <div className="mind-word-block">
+          <p>{missionText}</p>
+          <p>{secondText}</p>
+        </div>
+      </section>
+
+      <section className="mind-solution">
+        <span>SOLUTION</span>
+        <h2>
+          The platform for <em>meaningful</em> planetary play
+        </h2>
+        <video src={solutionVideo} autoPlay loop muted playsInline />
+        <div className="mind-feature-grid">
+          {features.map(([title, description]) => (
+            <article key={title}>
+              <h3>{title}</h3>
+              <p>{description}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mind-cta" id="cta">
+        <video ref={ctaVideoRef} src={solutionVideo} autoPlay loop muted playsInline />
+        <div className="mind-cta-overlay" />
+        <div className="mind-cta-content">
+          <span className="mind-logo-mark"><i /></span>
+          <h2>
+            Start Your <em>Journey</em>
+          </h2>
+          <p>Nhấn nút xuyên không để rời landing page và bước vào mô phỏng Hệ Mặt Trời 3D.</p>
+          <div className="mind-cta-actions">
+            <button type="button" className="warp-button" onClick={onStart}>
+              Xuyên không
             </button>
+            <a className="liquid-glass" href="#planets">Xem hành tinh</a>
           </div>
-        </aside>
+        </div>
+      </section>
 
-        {/* Right Panel */}
-        <aside className="dashboard-right-panel">
-          <div className="dashboard-system-status liquid-glass">
-            <div className="status-header">
-              <span>SYSTEM STATUS</span>
-              <strong style={{color: '#a8e6cf'}}>ONLINE</strong>
-            </div>
-            <div className="status-grid">
-              <div className="status-item">
-                <small>LOCAL TIME</small>
-                <span>{time}</span>
-              </div>
-              <div className="status-item">
-                <small>ACTIVE NODES</small>
-                <span>8 / 8</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="dashboard-feature-cards">
-            <div className="feature-card liquid-glass-strong">
-              <strong>Hologram 3D</strong>
-              <p>Dùng chuột kéo và xoay trực tiếp các hành tinh trong không gian 3D.</p>
-            </div>
-            <div className="feature-card liquid-glass-strong">
-              <strong>Giao diện Liquid Glass</strong>
-              <p>Thiết kế bảng điều khiển cao cấp với độ bóng mượt vượt trội.</p>
-            </div>
-          </div>
-        </aside>
-
-        {/* Bottom Bar */}
-        <footer className="dashboard-bottom-bar liquid-glass">
-          <div className="bottom-metrics">
-            <span>COORD: X-12.4 Y-8.9 Z-0.1</span>
-            <span>FREQ: 144.20 MHz</span>
-            <span>ORBIT: STABLE</span>
-          </div>
-        </footer>
-
-      </div>
-    </section>
+      <footer className="mind-footer">
+        <p>© 2026 SolarVerse. All rights reserved.</p>
+        <div>
+          <a href="#home">Privacy</a>
+          <a href="#home">Terms</a>
+          <a href="#home">Contact</a>
+        </div>
+      </footer>
+    </main>
   );
 }
