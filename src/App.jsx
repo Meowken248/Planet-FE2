@@ -4,9 +4,9 @@ import CompareStrip from './components/ui/CompareStrip.jsx';
 import ControlPanel from './components/ui/ControlPanel.jsx';
 import GameCompletePanel from './components/ui/GameCompletePanel.jsx';
 import GameFailedPanel from './components/ui/GameFailedPanel.jsx';
-import InfoPanel from './components/ui/InfoPanel.jsx';
 import MissionControl from './components/ui/MissionControl.jsx';
 import PlanetShooterGame from './components/missions/PlanetShooterGame.jsx';
+import PlanetProfilePage from './components/pages/PlanetProfilePage.jsx';
 import PlanetList from './components/ui/PlanetList.jsx';
 import ProgressTracker from './components/ui/ProgressTracker.jsx';
 import QuizGamePanel from './components/ui/QuizGamePanel.jsx';
@@ -19,14 +19,24 @@ import WarpTransition from './intro/WarpTransition.jsx';
 import { useSolarStore } from './store/useSolarStore.js';
 
 export default function App() {
+  const [path, setPath] = useState(window.location.pathname);
   const [phase, setPhase] = useState('loading');
   const uiVisible = useSolarStore((state) => state.uiVisible);
   const toggleUI = useSolarStore((state) => state.toggleUI);
+  const profileMatch = path.match(/^\/planet\/([^/]+)$/);
+  const profilePlanetId = profileMatch?.[1] || null;
+  const isProfilePage = Boolean(profilePlanetId);
   const showMainApp = phase === 'main';
 
-  const finishLoading = useCallback(() => {
-    setPhase('intro');
+  React.useEffect(() => {
+    const syncPath = () => setPath(window.location.pathname);
+    window.addEventListener('popstate', syncPath);
+    return () => window.removeEventListener('popstate', syncPath);
   }, []);
+
+  const finishLoading = useCallback(() => {
+    setPhase(isProfilePage ? 'main' : 'intro');
+  }, [isProfilePage]);
 
   const enterSolarSystem = useCallback(() => {
     setPhase('warp');
@@ -39,10 +49,12 @@ export default function App() {
       {phase === 'intro' && <IntroExperience onStart={enterSolarSystem} />}
       <WarpTransition active={phase === 'warp'} />
 
-      <main className={`app-shell ${showMainApp ? 'is-live' : 'is-hidden-shell'}`}>
-        {showMainApp && <SolarSystem />}
+      {showMainApp && isProfilePage && <PlanetProfilePage planetId={profilePlanetId} />}
 
-        {showMainApp && (
+      <main className={`app-shell ${showMainApp && !isProfilePage ? 'is-live' : 'is-hidden-shell'}`}>
+        {showMainApp && !isProfilePage && <SolarSystem />}
+
+        {showMainApp && !isProfilePage && (
           <button
             className={`ui-toggle-btn ${uiVisible ? '' : 'is-hidden'}`}
             onClick={toggleUI}
@@ -64,7 +76,7 @@ export default function App() {
           </button>
         )}
 
-        {showMainApp && (
+        {showMainApp && !isProfilePage && (
           <div className={`ui-container ${uiVisible ? '' : 'hidden'}`}>
             <div className="top-bar">
               <div>
@@ -75,18 +87,18 @@ export default function App() {
 
             <PlanetList />
             <ProgressTracker />
-            <InfoPanel />
             <MissionControl />
             <CompareStrip />
-            <QuizGamePanel />
-            <GameCompletePanel />
-            <GameFailedPanel />
           </div>
         )}
 
-        {showMainApp && <StoryBook3D />}
-        {showMainApp && <PlanetShooterGame />}
       </main>
+
+      {showMainApp && <QuizGamePanel />}
+      {showMainApp && <GameCompletePanel />}
+      {showMainApp && <GameFailedPanel />}
+      {showMainApp && <StoryBook3D />}
+      {showMainApp && <PlanetShooterGame />}
 
       {phase !== 'loading' && <SpaceshipCursor />}
     </>

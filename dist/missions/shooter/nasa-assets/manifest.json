@@ -11,14 +11,6 @@
                                   "nasaId":  "PIA19379",
                                   "sourceImage":  "https://images-assets.nasa.gov/image/PIA19379/PIA19379~small.jpg",
                                   "bytes":  27591
-                              },
-                   "weapon":  {
-                                  "path":  "/missions/shooter/nasa-assets/weapon-plasma.jpg",
-                                  "query":  "rocket launch exhaust",
-                                  "title":  "Flame Deflector Complete at Launch Complex 39B",
-                                  "nasaId":  "KSC-20180516-PH_KLS01_0024",
-                                  "sourceImage":  "https://images-assets.nasa.gov/image/KSC-20180516-PH_KLS01_0024/KSC-20180516-PH_KLS01_0024~medium.jpg",
-                                  "bytes":  149407
                               }
                }
 }

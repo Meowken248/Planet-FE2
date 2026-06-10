@@ -36,6 +36,16 @@ const getShotColor = (config, kind, variant) => {
   return colors.scout || enemyShotColors.scout;
 };
 
+const getPlayerShotColor = (config, weaponId, offset = 0) => {
+  if (weaponId === 'seeker') return '#fde047';
+  if (weaponId === 'triBeam') {
+    if (offset < 0) return config.palette[0] || '#38bdf8';
+    if (offset > 0) return config.palette[1] || '#a78bfa';
+    return '#f8fafc';
+  }
+  return config.accent || '#a7f3d0';
+};
+
 const initialStars = (width, height) =>
   Array.from({ length: 96 }, (_, index) => ({
     x: Math.random() * width,
@@ -562,7 +572,7 @@ export default function PlanetShooterGame() {
           damage: weapon.damage + (boosted ? 1 : 0),
           homing: weapon.homing,
           type: weapon.id,
-          color: config.accent,
+          color: getPlayerShotColor(config, weapon.id, offset),
         });
       });
       state.cooldown = boosted ? weapon.cooldown * 0.72 : weapon.cooldown;
@@ -966,16 +976,34 @@ export default function PlanetShooterGame() {
       state.bullets.forEach((bullet) => {
         ctx.save();
         ctx.shadowColor = bullet.color;
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = bullet.type === 'seeker' ? 22 : 16;
+
+        const length = bullet.type === 'seeker' ? 34 : bullet.type === 'triBeam' ? 26 : 22;
+        const height = bullet.type === 'seeker' ? 13 : bullet.type === 'triBeam' ? 7 : 8;
+        const trail = ctx.createLinearGradient(bullet.x - length, bullet.y, bullet.x + length * 0.55, bullet.y);
+        trail.addColorStop(0, 'rgba(255,255,255,0)');
+        trail.addColorStop(0.34, `${bullet.color}66`);
+        trail.addColorStop(0.78, bullet.color);
+        trail.addColorStop(1, '#ffffff');
+
+        ctx.fillStyle = trail;
         ctx.beginPath();
-        ctx.roundRect(bullet.x - 2, bullet.y - 4, 22, 8, 4);
-        ctx.save();
-        ctx.clip();
-        if (!drawImageCover(ctx, sprites.weapon, bullet.x - 2, bullet.y - 4, 22, 8)) {
-          ctx.fillStyle = bullet.color;
-          ctx.fillRect(bullet.x - 2, bullet.y - 4, 22, 8);
+        ctx.ellipse(bullet.x + length * 0.2, bullet.y, length * 0.62, height * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.globalAlpha = 0.36;
+        ctx.fillStyle = bullet.color;
+        ctx.beginPath();
+        ctx.ellipse(bullet.x - length * 0.32, bullet.y, length * 0.48, height * 0.34, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (bullet.type === 'seeker') {
+          ctx.globalAlpha = 0.9;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(bullet.x + length * 0.42, bullet.y, 3.2, 0, Math.PI * 2);
+          ctx.fill();
         }
-        ctx.restore();
         ctx.restore();
       });
       state.enemyShots.forEach((shot) => {

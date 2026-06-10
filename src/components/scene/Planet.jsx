@@ -48,6 +48,17 @@ const moonsByPlanet = {
   ],
 };
 
+const PROFILE_NAV_DELAY_MS = 6400;
+let pendingProfileTimer = 0;
+
+const openPlanetProfile = (planetId) => {
+  window.clearTimeout(pendingProfileTimer);
+  pendingProfileTimer = window.setTimeout(() => {
+    window.history.pushState({}, '', `/planet/${planetId}`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }, PROFILE_NAV_DELAY_MS);
+};
+
 function RealOrbitTrail({ samples, planet, orbitRadius, color, active, visible, currentSample }) {
   const baseColor = useMemo(() => new THREE.Color(color), [color]);
   const geometry = useMemo(() => {
@@ -217,6 +228,7 @@ export default function Planet({ planet }) {
               onClick={(event) => {
                 event.stopPropagation();
                 selectPlanet(planet.id);
+                openPlanetProfile(planet.id);
               }}
             >
               <sphereGeometry args={[planet.radius, 96, 96]} />
@@ -283,7 +295,13 @@ export default function Planet({ planet }) {
               distanceFactor={10}
               className={`planet-label ${isSelected ? 'is-selected' : ''}`}
             >
-              <button type="button" onClick={() => selectPlanet(planet.id)}>
+              <button
+                type="button"
+                onClick={() => {
+                  selectPlanet(planet.id);
+                  openPlanetProfile(planet.id);
+                }}
+              >
                 {planet.name}
               </button>
             </Html>

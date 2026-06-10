@@ -7,7 +7,6 @@ export const shooterSprites = {
   miniHeavy: '/boss/bossmini/processed/ancient_giant.png',
   hazard: '/missions/shooter/nasa-assets/hazard-asteroid.jpg',
   power: '/boss/vatpham/processed/vatpham-items.png',
-  weapon: '/missions/shooter/nasa-assets/weapon-plasma.jpg',
 };
 
 const missionPresets = {
