@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const preloadImages = [
   '/planets/sun.jpg',
@@ -20,16 +20,6 @@ function loadImage(src) {
 
 export default function LoadingScreen({ onComplete }) {
   const [progress, setProgress] = useState(0);
-  const messages = useMemo(
-    () => [
-      'Đang đồng bộ bản đồ sao',
-      'Đang nạp mô hình hành tinh',
-      'Đang hiệu chỉnh quỹ đạo',
-      'Đang mở cổng không gian',
-    ],
-    []
-  );
-  const message = messages[Math.min(messages.length - 1, Math.floor((progress / 100) * messages.length))];
 
   useEffect(() => {
     let mounted = true;
@@ -39,7 +29,7 @@ export default function LoadingScreen({ onComplete }) {
       if (mounted) setProgress((current) => Math.max(current, visualProgress));
     }, 70);
 
-    const minimumDelay = new Promise((resolve) => window.setTimeout(resolve, 1700));
+    const minimumDelay = new Promise((resolve) => window.setTimeout(resolve, 2400));
     const assetsReady = Promise.all([
       ...preloadImages.map(loadImage),
       fetch('/models/cassini.glb').catch(() => null),
@@ -59,36 +49,18 @@ export default function LoadingScreen({ onComplete }) {
   }, [onComplete]);
 
   return (
-    <div className="loading-screen">
-      <div className="loading-stars" />
-      <div className="loading-nebula" />
-      <div className="loading-scanlines" />
-      <div className="loading-portal" aria-hidden="true">
-        <div className="loading-core">
-          <em />
-          <span />
-          <i />
-          <b />
+    <div className="loading-screen loading-minimal">
+      <div className="planet-loader">
+        <div className="planet-word" aria-label="Planet">
+          {'PLANET'.split('').map((letter, index) => (
+            <span key={letter} data-letter={letter} style={{ '--letter-index': index }}>
+              {letter}
+            </span>
+          ))}
         </div>
-        <div className="loading-beam" />
-      </div>
-      <div className="loading-hud top">
-        <span>SOLARVERSE PRELAUNCH</span>
-        <strong>{Math.round(progress)}%</strong>
-      </div>
-      <div className="loading-copy">
-        <p>SolarVerse</p>
-        <h1>Chuẩn bị khởi hành</h1>
-        <strong>{message}</strong>
-        <div className="loading-bar" aria-label={`Tiến trình ${Math.round(progress)}%`}>
+        <div className="planet-loader-line" aria-label={`Tiến trình ${Math.round(progress)}%`}>
           <span style={{ width: `${progress}%` }} />
         </div>
-        <small>NASA DATA | JPL HORIZONS | THREE.JS FLIGHT</small>
-      </div>
-      <div className="loading-hud bottom">
-        <span>ORBIT LOCK</span>
-        <span>STAR MAP</span>
-        <span>WARP GATE</span>
       </div>
     </div>
   );
