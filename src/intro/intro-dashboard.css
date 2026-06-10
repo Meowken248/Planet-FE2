@@ -38,9 +38,9 @@
 }
 
 .mind-home em {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: inherit;
   font-style: italic;
-  font-weight: 400;
+  font-weight: inherit;
 }
 
 .mind-home .liquid-glass {
@@ -83,7 +83,6 @@
 
 .mind-logo,
 .mind-links,
-.mind-socials,
 .mind-footer div {
   display: flex;
   align-items: center;
@@ -135,22 +134,6 @@
 .mind-links a:hover,
 .mind-footer a:hover {
   color: #fff;
-}
-
-.mind-socials {
-  gap: 10px;
-}
-
-.mind-social {
-  display: grid;
-  width: 40px;
-  height: 40px;
-  place-items: center;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 900;
-  text-decoration: none;
 }
 
 .mind-hero {
@@ -241,7 +224,7 @@
   font-size: clamp(54px, 9vw, 126px);
   font-weight: 500;
   line-height: 0.92;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .mind-subtitle,
@@ -253,26 +236,6 @@
   line-height: 1.55;
 }
 
-.mind-form {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-  width: min(540px, 100%);
-  margin-top: 22px;
-  border-radius: 999px;
-  padding: 8px;
-}
-
-.mind-form input {
-  min-width: 0;
-  border: 0;
-  background: transparent;
-  color: #fff;
-  padding: 0 18px;
-  outline: none;
-}
-
-.mind-form button,
 .mind-cta-actions button,
 .mind-cta-actions a {
   border: 0;
@@ -285,7 +248,6 @@
   transition: transform 200ms ease, box-shadow 200ms ease;
 }
 
-.mind-form button:hover,
 .mind-cta-actions button:hover,
 .mind-cta-actions a:hover {
   transform: scale(1.03);
@@ -361,7 +323,7 @@
   margin: 0;
   font-size: clamp(28px, 3vw, 52px);
   line-height: 0.94;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .mind-planet-card strong {
@@ -441,15 +403,15 @@
 
 .mind-word-block p {
   margin: 0;
-  font-size: clamp(28px, 5vw, 64px);
+  font-size: clamp(28px, 4.7vw, 58px);
   font-weight: 700;
-  line-height: 1.02;
-  letter-spacing: -0.04em;
+  line-height: 1.12;
+  letter-spacing: 0;
 }
 
 .mind-word-block p + p {
   margin-top: 34px;
-  font-size: clamp(22px, 3vw, 38px);
+  font-size: clamp(20px, 2.6vw, 34px);
 }
 
 .mind-word-block span {
@@ -620,19 +582,10 @@
 }
 
 @media (max-width: 640px) {
-  .mind-socials {
-    display: none;
-  }
-
   .mind-hero h1,
   .mind-search h2,
   .mind-cta h2 {
     font-size: clamp(44px, 15vw, 72px);
-  }
-
-  .mind-form {
-    grid-template-columns: 1fr;
-    border-radius: 28px;
   }
 
   .mind-planet-grid,

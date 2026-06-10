@@ -31,17 +31,9 @@ const features = [
 function useRevealWords(text) {
   return text.split(' ').map((word, index) => (
     <span key={`${word}-${index}`} style={{ '--word-index': index }}>
-      {word}
+      {word}{' '}
     </span>
   ));
-}
-
-function SocialIcon({ label }) {
-  return (
-    <a className="mind-social liquid-glass" href="#home" aria-label={label}>
-      {label.slice(0, 1)}
-    </a>
-  );
 }
 
 function PlanetCard({ planet, index, onRevealMove }) {
@@ -58,7 +50,6 @@ function PlanetCard({ planet, index, onRevealMove }) {
 }
 
 export default function IntroExperience({ onStart }) {
-  const [email, setEmail] = useState('');
   const [spotlight, setSpotlight] = useState({ x: 50, y: 38 });
   const missionText = useRevealWords(
     'Chúng tôi xây dựng một không gian nơi tò mò gặp rõ ràng, nơi mỗi hành tinh có hồ sơ riêng, mỗi nhiệm vụ có nhịp chơi riêng và mỗi lần lướt xuống mở ra một lớp vũ trụ mới.'
@@ -72,11 +63,6 @@ export default function IntroExperience({ onStart }) {
     const video = ctaVideoRef.current;
     if (!video) return;
     video.play?.().catch(() => {});
-  }, []);
-
-  const handleSubscribe = useCallback((event) => {
-    event.preventDefault();
-    setEmail('');
   }, []);
 
   const handlePointerMove = useCallback((event) => {
@@ -112,11 +98,6 @@ export default function IntroExperience({ onStart }) {
           <b>•</b>
           <a href="#cta">Use Cases</a>
         </div>
-        <div className="mind-socials">
-          <SocialIcon label="Instagram" />
-          <SocialIcon label="Linkedin" />
-          <SocialIcon label="Twitter" />
-        </div>
       </nav>
 
       <section className="mind-hero">
@@ -136,15 +117,6 @@ export default function IntroExperience({ onStart }) {
           <p className="mind-subtitle">
             Khám phá các hành tinh, hồ sơ 3D, nhiệm vụ game và một hành trình đi từ Trái Đất tới rìa Hệ Mặt Trời.
           </p>
-          <form className="mind-form liquid-glass" onSubmit={handleSubscribe}>
-            <input
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              type="email"
-              placeholder="your@email.com"
-            />
-            <button type="submit">SUBSCRIBE</button>
-          </form>
         </div>
       </section>
 
