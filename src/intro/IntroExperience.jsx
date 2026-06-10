@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import './intro-dashboard.css';
 
 const heroVideo =
@@ -13,14 +13,14 @@ const ctaVideo =
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4';
 
 const planets = [
-  ['Sao Thủy', 'Nhanh nhất', 'Thế giới đá sát Mặt Trời, đầy miệng hố và nhiệt độ cực đoan.', '/planets/mercury.jpg'],
-  ['Sao Kim', 'Nóng nhất', 'Mây axit, khí quyển dày và hiệu ứng nhà kính dữ dội.', '/venus/map.jpg'],
-  ['Trái Đất', 'Có sự sống', 'Đại dương, mây, khí quyển và sinh quyển xanh của chúng ta.', '/earth/map.jpg'],
-  ['Sao Hỏa', 'Hành tinh đỏ', 'Bụi sắt, núi lửa cổ và dấu vết nước từng chảy qua.', '/planets/mars.jpg'],
-  ['Sao Mộc', 'Lớn nhất', 'Vua bão khí khổng lồ với Vết Đỏ Lớn và nhiều mặt trăng.', '/planets/jupiter.jpg'],
-  ['Sao Thổ', 'Vành đai', 'Một sân khấu băng đá khổng lồ xoay quanh hành tinh khí.', '/planets/saturn.jpg'],
-  ['Thiên Vương', 'Nghiêng ngang', 'Hành tinh băng xanh nhạt lăn quanh Mặt Trời theo trục lạ.', '/planets/uranus.jpg'],
-  ['Hải Vương', 'Gió mạnh', 'Rìa xanh sâu với những cơn gió siêu nhanh và bão lạnh.', '/planets/neptune.jpg'],
+  ['Sao Thủy', 'Nhanh nhất', 'Thế giới đá sát Mặt Trời, đầy miệng hố và nhiệt độ cực đoan.', '/planets/mercury.jpg', 'mercury'],
+  ['Sao Kim', 'Nóng nhất', 'Mây axit, khí quyển dày và hiệu ứng nhà kính dữ dội.', '/venus/map.jpg', 'venus'],
+  ['Trái Đất', 'Có sự sống', 'Đại dương, mây, khí quyển và sinh quyển xanh của chúng ta.', '/earth/map.jpg', 'earth'],
+  ['Sao Hỏa', 'Hành tinh đỏ', 'Bụi sắt, núi lửa cổ và dấu vết nước từng chảy qua.', '/planets/mars.jpg', 'mars'],
+  ['Sao Mộc', 'Lớn nhất', 'Vua bão khí khổng lồ với Vết Đỏ Lớn và nhiều mặt trăng.', '/planets/jupiter.jpg', 'jupiter'],
+  ['Sao Thổ', 'Vành đai', 'Một sân khấu băng đá khổng lồ xoay quanh hành tinh khí.', '/planets/saturn.jpg', 'saturn'],
+  ['Thiên Vương', 'Nghiêng ngang', 'Hành tinh băng xanh nhạt lăn quanh Mặt Trời theo trục lạ.', '/planets/uranus.jpg', 'uranus'],
+  ['Hải Vương', 'Gió mạnh', 'Rìa xanh sâu với những cơn gió siêu nhanh và bão lạnh.', '/planets/neptune.jpg', 'neptune'],
 ];
 
 const features = [
@@ -68,9 +68,14 @@ function FeatureIcon({ type }) {
   );
 }
 
-function PlanetCard({ planet, index, onRevealMove }) {
+function PlanetCard({ planet, index, onRevealMove, onPlanetClick }) {
   return (
-    <article className="mind-planet-card" style={{ '--card-index': index }} onPointerMove={onRevealMove}>
+    <article
+      className={`mind-planet-card is-revealable planet-${planet[4]}`}
+      style={{ '--card-index': index }}
+      onPointerMove={onRevealMove}
+      onClick={onPlanetClick}
+    >
       <div className="mind-planet-icon" style={{ backgroundImage: `url(${planet[3]})` }}>
         {planet[0] === 'Sao Thổ' && <i />}
       </div>
@@ -82,7 +87,8 @@ function PlanetCard({ planet, index, onRevealMove }) {
 }
 
 export default function IntroExperience({ onStart }) {
-  const [spotlight, setSpotlight] = useState({ x: 50, y: 38 });
+  const homeRef = useRef(null);
+  const frameRef = useRef(null);
   const missionText =
     'Chúng tôi tạo ra một không gian nơi tri thức được khám phá theo cách tự nhiên nhất. Mỗi hành tinh là một câu chuyện, mỗi nhiệm vụ là một hành trình và mỗi tương tác đều mở ra góc nhìn mới về Hệ Mặt Trời. Không chỉ để quan sát, người chơi được tự mình tìm hiểu, trải nghiệm và kết nối với vũ trụ theo cách riêng của mình.';
   const secondText =
@@ -95,10 +101,46 @@ export default function IntroExperience({ onStart }) {
     video.play?.().catch(() => {});
   }, []);
 
+  useEffect(() => () => {
+    if (frameRef.current) cancelAnimationFrame(frameRef.current);
+  }, []);
+
+  useEffect(() => {
+    const root = homeRef.current;
+    if (!root) return undefined;
+
+    const revealables = root.querySelectorAll('.is-revealable');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+          }
+        });
+      },
+      { root, threshold: 0.18 }
+    );
+
+    revealables.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
+
   const handlePointerMove = useCallback((event) => {
+    const root = homeRef.current;
+    if (!root) return;
+
     const x = (event.clientX / window.innerWidth) * 100;
     const y = (event.clientY / window.innerHeight) * 100;
-    setSpotlight({ x, y });
+    const px = (x - 50) / 50;
+    const py = (y - 50) / 50;
+
+    if (frameRef.current) cancelAnimationFrame(frameRef.current);
+    frameRef.current = requestAnimationFrame(() => {
+      root.style.setProperty('--spotlight-x', `${x}%`);
+      root.style.setProperty('--spotlight-y', `${y}%`);
+      root.style.setProperty('--parallax-x', `${px}`);
+      root.style.setProperty('--parallax-y', `${py}`);
+    });
   }, []);
 
   const handleLocalReveal = useCallback((event) => {
@@ -108,12 +150,12 @@ export default function IntroExperience({ onStart }) {
   }, []);
 
   return (
-    <main
-      className="mind-home"
-      id="home"
-      onPointerMove={handlePointerMove}
-      style={{ '--spotlight-x': `${spotlight.x}%`, '--spotlight-y': `${spotlight.y}%` }}
-    >
+    <main ref={homeRef} className="mind-home" id="home" onPointerMove={handlePointerMove}>
+      <div className="mind-ambient" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
       <nav className="mind-nav">
         <a className="mind-logo" href="#home">
           <span><i /></span>
@@ -130,7 +172,7 @@ export default function IntroExperience({ onStart }) {
         </div>
       </nav>
 
-      <section className="mind-hero">
+      <section className="mind-hero is-revealable">
         <video className="mind-hero-video mind-hero-video-base" src={heroVideo} autoPlay loop muted playsInline />
         <video className="mind-hero-video mind-hero-video-color" src={heroVideo} autoPlay loop muted playsInline />
         <div className="mind-hero-fade" />
@@ -141,8 +183,10 @@ export default function IntroExperience({ onStart }) {
             <span />
             <p>7,000+ explorers already launched</p>
           </div>
-          <h1>
-            Get <em>Inspired</em> with Space
+          <h1 className="mind-hero-title">
+            <span>Get</span>
+            <em>Inspired</em>
+            <span>with Space</span>
           </h1>
           <p className="mind-subtitle">
             Khám phá các hành tinh, hồ sơ 3D, nhiệm vụ game và một hành trình đi từ Trái Đất tới rìa Hệ Mặt Trời.
@@ -150,7 +194,7 @@ export default function IntroExperience({ onStart }) {
         </div>
       </section>
 
-      <section className="mind-search" id="planets">
+      <section className="mind-search is-revealable" id="planets">
         <h2>
           Exploration has <em>changed.</em>
           <br />
@@ -161,31 +205,37 @@ export default function IntroExperience({ onStart }) {
         </p>
         <div className="mind-planet-grid">
           {planets.map((planet, index) => (
-            <PlanetCard key={planet[0]} planet={planet} index={index} onRevealMove={handleLocalReveal} />
+            <PlanetCard
+              key={planet[0]}
+              planet={planet}
+              index={index}
+              onRevealMove={handleLocalReveal}
+              onPlanetClick={handleLocalReveal}
+            />
           ))}
         </div>
         <small>If you do not explore the questions, the universe keeps them.</small>
       </section>
 
-      <section className="mind-mission" id="mission">
+      <section className="mind-mission is-revealable" id="mission">
         <div className="mind-video-reveal mind-video-orb" onPointerMove={handleLocalReveal}>
           <video className="mind-video-base" src={missionVideo} autoPlay loop muted playsInline />
           <video className="mind-video-color" src={missionVideo} autoPlay loop muted playsInline />
         </div>
-        <div className="mind-word-block">
+        <div className="mind-word-block is-revealable">
           <p>{missionText}</p>
           <p>{secondText}</p>
         </div>
       </section>
 
-      <section className="mind-solution">
+      <section className="mind-solution is-revealable">
         <span>SOLUTION</span>
         <h2>
           The platform for <em>meaningful</em> planetary play
         </h2>
         <div className="mind-feature-grid">
           {features.map(([icon, title, description]) => (
-            <article key={title} onPointerMove={handleLocalReveal}>
+            <article key={title} className="is-revealable" onPointerMove={handleLocalReveal}>
               <FeatureIcon type={icon} />
               <h3>{title}</h3>
               <p>{description}</p>
@@ -194,7 +244,7 @@ export default function IntroExperience({ onStart }) {
         </div>
       </section>
 
-      <section className="mind-cta" id="cta">
+      <section className="mind-cta is-revealable" id="cta">
         <video className="mind-cta-video-base" ref={ctaVideoRef} src={ctaVideo} autoPlay loop muted playsInline />
         <video className="mind-cta-video-color" src={ctaVideo} autoPlay loop muted playsInline />
         <div className="mind-cta-overlay" />
