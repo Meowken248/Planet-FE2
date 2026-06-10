@@ -44,9 +44,9 @@ function SocialIcon({ label }) {
   );
 }
 
-function PlanetCard({ planet, index }) {
+function PlanetCard({ planet, index, onRevealMove }) {
   return (
-    <article className="mind-planet-card" style={{ '--card-index': index }}>
+    <article className="mind-planet-card" style={{ '--card-index': index }} onPointerMove={onRevealMove}>
       <div className="mind-planet-icon" style={{ backgroundImage: `url(${planet[3]})` }}>
         {planet[0] === 'Sao Thổ' && <i />}
       </div>
@@ -85,6 +85,12 @@ export default function IntroExperience({ onStart }) {
     setSpotlight({ x, y });
   }, []);
 
+  const handleLocalReveal = useCallback((event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    event.currentTarget.style.setProperty('--local-x', `${((event.clientX - rect.left) / rect.width) * 100}%`);
+    event.currentTarget.style.setProperty('--local-y', `${((event.clientY - rect.top) / rect.height) * 100}%`);
+  }, []);
+
   return (
     <main
       className="mind-home"
@@ -114,7 +120,8 @@ export default function IntroExperience({ onStart }) {
       </nav>
 
       <section className="mind-hero">
-        <video className="mind-hero-video" src={heroVideo} autoPlay loop muted playsInline />
+        <video className="mind-hero-video mind-hero-video-base" src={heroVideo} autoPlay loop muted playsInline />
+        <video className="mind-hero-video mind-hero-video-color" src={heroVideo} autoPlay loop muted playsInline />
         <div className="mind-hero-fade" />
         <div className="mind-hero-content">
           <div className="mind-avatar-row">
@@ -152,14 +159,17 @@ export default function IntroExperience({ onStart }) {
         </p>
         <div className="mind-planet-grid">
           {planets.map((planet, index) => (
-            <PlanetCard key={planet[0]} planet={planet} index={index} />
+            <PlanetCard key={planet[0]} planet={planet} index={index} onRevealMove={handleLocalReveal} />
           ))}
         </div>
         <small>If you do not explore the questions, the universe keeps them.</small>
       </section>
 
       <section className="mind-mission" id="mission">
-        <video src={missionVideo} autoPlay loop muted playsInline />
+        <div className="mind-video-reveal mind-video-orb" onPointerMove={handleLocalReveal}>
+          <video className="mind-video-base" src={missionVideo} autoPlay loop muted playsInline />
+          <video className="mind-video-color" src={missionVideo} autoPlay loop muted playsInline />
+        </div>
         <div className="mind-word-block">
           <p>{missionText}</p>
           <p>{secondText}</p>
@@ -171,7 +181,10 @@ export default function IntroExperience({ onStart }) {
         <h2>
           The platform for <em>meaningful</em> planetary play
         </h2>
-        <video src={solutionVideo} autoPlay loop muted playsInline />
+        <div className="mind-video-reveal mind-video-wide" onPointerMove={handleLocalReveal}>
+          <video className="mind-video-base" src={solutionVideo} autoPlay loop muted playsInline />
+          <video className="mind-video-color" src={solutionVideo} autoPlay loop muted playsInline />
+        </div>
         <div className="mind-feature-grid">
           {features.map(([title, description]) => (
             <article key={title}>
@@ -183,7 +196,8 @@ export default function IntroExperience({ onStart }) {
       </section>
 
       <section className="mind-cta" id="cta">
-        <video ref={ctaVideoRef} src={solutionVideo} autoPlay loop muted playsInline />
+        <video className="mind-cta-video-base" ref={ctaVideoRef} src={solutionVideo} autoPlay loop muted playsInline />
+        <video className="mind-cta-video-color" src={solutionVideo} autoPlay loop muted playsInline />
         <div className="mind-cta-overlay" />
         <div className="mind-cta-content">
           <span className="mind-logo-mark"><i /></span>

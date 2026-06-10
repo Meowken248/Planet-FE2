@@ -15,7 +15,6 @@ import SpaceshipCursor from './components/ui/SpaceshipCursor.jsx';
 import IntroExperience from './intro/IntroExperience.jsx';
 import LoadingScreen from './intro/LoadingScreen.jsx';
 import WarpTransition from './intro/WarpTransition.jsx';
-
 import { useSolarStore } from './store/useSolarStore.js';
 
 export default function App() {
@@ -68,7 +67,7 @@ export default function App() {
 
   const enterSolarSystem = useCallback(() => {
     setPhase('warp');
-    window.setTimeout(() => setPhase('main'), 950);
+    window.setTimeout(() => setPhase('main'), 3500);
   }, []);
 
   return (
@@ -76,8 +75,6 @@ export default function App() {
       {phase === 'loading' && <LoadingScreen onComplete={finishLoading} />}
       <audio ref={backgroundAudioRef} src="/audio/bgaudio.m4a" preload="auto" loop />
       {phase === 'intro' && <IntroExperience onStart={enterSolarSystem} />}
-      <WarpTransition active={phase === 'warp'} />
-
       {showMainApp && isProfilePage && <PlanetProfilePage planetId={profilePlanetId} />}
 
       <main className={`app-shell ${showMainApp && !isProfilePage ? 'is-live' : 'is-hidden-shell'}`}>
