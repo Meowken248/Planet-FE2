@@ -172,10 +172,20 @@ export default function WarpTransition({ active }) {
   const handleFlash = () => {
     setFlash(true);
     if (flashRef.current) {
-      gsap.fromTo(flashRef.current, 
-        { opacity: 0 },
-        { opacity: 1, duration: 0.15, ease: "power1.inOut" }
-      );
+      gsap.killTweensOf(flashRef.current);
+      gsap.timeline({
+        onComplete: () => setFlash(false),
+      })
+        .fromTo(
+          flashRef.current,
+          { opacity: 0 },
+          { opacity: 0.58, duration: 0.08, ease: "power2.out" }
+        )
+        .to(flashRef.current, {
+          opacity: 0,
+          duration: 0.55,
+          ease: "power3.out",
+        });
     }
   };
 
@@ -193,9 +203,10 @@ export default function WarpTransition({ active }) {
         style={{
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: '#ffffff',
+          background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.88), rgba(143,218,255,0.46) 28%, rgba(0,0,0,0) 64%)',
           opacity: 0,
           pointerEvents: 'none',
+          mixBlendMode: 'screen',
           display: flash ? 'block' : 'none',
           zIndex: 10
         }} 

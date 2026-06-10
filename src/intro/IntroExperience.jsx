@@ -84,9 +84,9 @@ function PlanetCard({ planet, index, onRevealMove }) {
 export default function IntroExperience({ onStart }) {
   const [spotlight, setSpotlight] = useState({ x: 50, y: 38 });
   const missionText =
-    'Chúng tôi xây dựng một không gian nơi tò mò gặp rõ ràng, nơi mỗi hành tinh có hồ sơ riêng, mỗi nhiệm vụ có nhịp chơi riêng và mỗi lần lướt xuống mở ra một lớp vũ trụ mới.';
+    'Chúng tôi tạo ra một không gian nơi tri thức được khám phá theo cách tự nhiên nhất. Mỗi hành tinh là một câu chuyện, mỗi nhiệm vụ là một hành trình và mỗi tương tác đều mở ra góc nhìn mới về Hệ Mặt Trời. Không chỉ để quan sát, người chơi được tự mình tìm hiểu, trải nghiệm và kết nối với vũ trụ theo cách riêng của mình.';
   const secondText =
-    'Ít nhiễu hơn, nhiều chiều sâu hơn, nhiều chuyển động hơn để người chơi hiểu Hệ Mặt Trời bằng cả mắt, tay và trí tưởng tượng.';
+    'Học bằng cách khám phá, ghi nhớ bằng trải nghiệm.';
   const ctaVideoRef = useRef(null);
 
   useEffect(() => {
@@ -117,7 +117,7 @@ export default function IntroExperience({ onStart }) {
       <nav className="mind-nav">
         <a className="mind-logo" href="#home">
           <span><i /></span>
-          <strong>SolarVerse</strong>
+          <strong>PLANET</strong>
         </a>
         <div className="mind-links">
           <a href="#home">Home</a>
@@ -157,7 +157,7 @@ export default function IntroExperience({ onStart }) {
           Have you?
         </h2>
         <p>
-          Mỗi hành tinh trong SolarVerse không chỉ là một quả cầu quay. Nó là một hồ sơ, một nhiệm vụ và một thế giới có cá tính riêng.
+          Mỗi hành tinh trong PLANET không chỉ là một quả cầu quay. Nó là một hồ sơ, một nhiệm vụ và một thế giới có cá tính riêng.
         </p>
         <div className="mind-planet-grid">
           {planets.map((planet, index) => (
@@ -185,7 +185,7 @@ export default function IntroExperience({ onStart }) {
         </h2>
         <div className="mind-feature-grid">
           {features.map(([icon, title, description]) => (
-            <article key={title}>
+            <article key={title} onPointerMove={handleLocalReveal}>
               <FeatureIcon type={icon} />
               <h3>{title}</h3>
               <p>{description}</p>

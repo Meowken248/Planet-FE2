@@ -19,6 +19,7 @@ import { useSolarStore } from './store/useSolarStore.js';
 
 export default function App() {
   const backgroundAudioRef = useRef(null);
+  const warpTimerRef = useRef(null);
   const [path, setPath] = useState(window.location.pathname);
   const [phase, setPhase] = useState('loading');
   const uiVisible = useSolarStore((state) => state.uiVisible);
@@ -65,9 +66,34 @@ export default function App() {
     setPhase(isProfilePage ? 'main' : 'intro');
   }, [isProfilePage]);
 
+  const goHome = useCallback(() => {
+    if (warpTimerRef.current) {
+      window.clearTimeout(warpTimerRef.current);
+      warpTimerRef.current = null;
+    }
+    window.history.pushState({}, '', '/');
+    setPath('/');
+    setPhase('intro');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }, []);
+
   const enterSolarSystem = useCallback(() => {
     setPhase('warp');
-    window.setTimeout(() => setPhase('main'), 3500);
+    if (warpTimerRef.current) {
+      window.clearTimeout(warpTimerRef.current);
+    }
+    warpTimerRef.current = window.setTimeout(() => {
+      warpTimerRef.current = null;
+      setPhase('main');
+    }, 5000);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (warpTimerRef.current) {
+        window.clearTimeout(warpTimerRef.current);
+      }
+    };
   }, []);
 
   return (
@@ -75,7 +101,8 @@ export default function App() {
       {phase === 'loading' && <LoadingScreen onComplete={finishLoading} />}
       <audio ref={backgroundAudioRef} src="/audio/bgaudio.m4a" preload="auto" loop />
       {phase === 'intro' && <IntroExperience onStart={enterSolarSystem} />}
-      {showMainApp && isProfilePage && <PlanetProfilePage planetId={profilePlanetId} />}
+      {phase === 'warp' && <WarpTransition active />}
+      {showMainApp && isProfilePage && <PlanetProfilePage planetId={profilePlanetId} onHome={goHome} />}
 
       <main className={`app-shell ${showMainApp && !isProfilePage ? 'is-live' : 'is-hidden-shell'}`}>
         {showMainApp && !isProfilePage && <SolarSystem />}
@@ -105,9 +132,10 @@ export default function App() {
         {showMainApp && !isProfilePage && (
           <div className={`ui-container ${uiVisible ? '' : 'hidden'}`}>
             <div className="top-bar">
-              <div>
-                <p>SolarVerse</p>
-              </div>
+              <button type="button" className="solar-home-logo" onClick={goHome}>
+                <span><i /></span>
+                <p>PLANET</p>
+              </button>
               <ControlPanel />
             </div>
 

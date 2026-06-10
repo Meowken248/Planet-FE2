@@ -227,7 +227,7 @@ function Icon({ name, size = 18 }) {
   );
 }
 
-export default function PlanetProfilePage({ planetId }) {
+export default function PlanetProfilePage({ planetId, onHome }) {
   const planet = planetMap[planetId] || planetMap.earth;
   const shooter = planetShooterConfig[planet.id] || planetShooterConfig.earth;
   const missionData = shooter.mission || {};
@@ -253,6 +253,7 @@ export default function PlanetProfilePage({ planetId }) {
   const openStoryBook = useSolarStore((state) => state.openStoryBook);
   const openQuiz = useSolarStore((state) => state.openQuiz);
   const openShooterMission = useSolarStore((state) => state.openShooterMission);
+  const handleHome = onHome || goHome;
 
   useEffect(() => {
     selectPlanet(planet.id);
@@ -296,11 +297,11 @@ export default function PlanetProfilePage({ planetId }) {
           <div className="liquid-glass-strong profile-panel-glass" />
 
           <nav className="profile-nav">
-            <button type="button" className="profile-brand" onClick={goHome}>
+            <button type="button" className="profile-brand" onClick={handleHome}>
               <span className={`planet-orb ${planet.id}`} />
-              <strong>PLANE</strong>
+              <strong>PLANET</strong>
             </button>
-            <button type="button" className="profile-menu-btn liquid-glass" onClick={goHome}>
+            <button type="button" className="profile-menu-btn liquid-glass" onClick={handleHome}>
               <Icon name="back" />
               Hệ hành tinh
             </button>
