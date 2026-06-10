@@ -9,6 +9,8 @@ const missionVideo =
 
 const solutionVideo =
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260325_125119_8e5ae31c-0021-4396-bc08-f7aebeb877a2.mp4';
+const ctaVideo =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4';
 
 const planets = [
   ['Sao Thủy', 'Nhanh nhất', 'Thế giới đá sát Mặt Trời, đầy miệng hố và nhiệt độ cực đoan.', '/planets/mercury.jpg'],
@@ -22,18 +24,48 @@ const planets = [
 ];
 
 const features = [
-  ['Hồ sơ hành tinh', 'Đọc dữ liệu, mô tả, dấu hiệu nổi bật và thông tin NASA theo từng hành tinh.'],
-  ['Camera điện ảnh', 'Bấm hành tinh, camera lia tới trước khi mở hồ sơ riêng.'],
-  ['Nhiệm vụ game', 'Mỗi hành tinh có màu nền, quái, boss và độ khó riêng.'],
-  ['Trải nghiệm 3D', 'Quỹ đạo, bề mặt, ánh sáng và chuyển động tạo cảm giác như phòng chiếu thiên văn.'],
+  ['profile', 'Hồ sơ hành tinh', 'Đọc dữ liệu, mô tả, dấu hiệu nổi bật và thông tin NASA theo từng hành tinh.'],
+  ['camera', 'Camera điện ảnh', 'Bấm hành tinh, camera lia tới trước khi mở hồ sơ riêng.'],
+  ['mission', 'Nhiệm vụ game', 'Mỗi hành tinh có màu nền, quái, boss và độ khó riêng.'],
+  ['orbit', 'Trải nghiệm 3D', 'Quỹ đạo, bề mặt, ánh sáng và chuyển động tạo cảm giác như phòng chiếu thiên văn.'],
 ];
 
-function useRevealWords(text) {
-  return text.split(' ').map((word, index) => (
-    <span key={`${word}-${index}`} style={{ '--word-index': index }}>
-      {word}{' '}
+function FeatureIcon({ type }) {
+  const paths = {
+    profile: (
+      <>
+        <circle cx="12" cy="12" r="7" />
+        <path d="M8.5 15.5c1.2-1.3 2.3-2 3.5-2s2.3.7 3.5 2" />
+        <circle cx="12" cy="10" r="2" />
+      </>
+    ),
+    camera: (
+      <>
+        <path d="M4 8h4l1.3-2h5.4L16 8h4v10H4z" />
+        <circle cx="12" cy="13" r="3" />
+      </>
+    ),
+    mission: (
+      <>
+        <path d="M12 3l3 6 6 .8-4.5 4.3 1.1 6.1L12 17.2 6.4 20.2l1.1-6.1L3 9.8 9 9z" />
+      </>
+    ),
+    orbit: (
+      <>
+        <circle cx="12" cy="12" r="2.2" />
+        <path d="M3.5 12c0-3.6 3.8-6.5 8.5-6.5s8.5 2.9 8.5 6.5-3.8 6.5-8.5 6.5S3.5 15.6 3.5 12Z" />
+        <path d="M6.5 6.5c3.2 3.9 7.6 7.5 11 11" />
+      </>
+    ),
+  };
+
+  return (
+    <span className="mind-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        {paths[type]}
+      </svg>
     </span>
-  ));
+  );
 }
 
 function PlanetCard({ planet, index, onRevealMove }) {
@@ -51,12 +83,10 @@ function PlanetCard({ planet, index, onRevealMove }) {
 
 export default function IntroExperience({ onStart }) {
   const [spotlight, setSpotlight] = useState({ x: 50, y: 38 });
-  const missionText = useRevealWords(
-    'Chúng tôi xây dựng một không gian nơi tò mò gặp rõ ràng, nơi mỗi hành tinh có hồ sơ riêng, mỗi nhiệm vụ có nhịp chơi riêng và mỗi lần lướt xuống mở ra một lớp vũ trụ mới.'
-  );
-  const secondText = useRevealWords(
-    'Ít nhiễu hơn, nhiều chiều sâu hơn, nhiều chuyển động hơn để người chơi hiểu Hệ Mặt Trời bằng cả mắt, tay và trí tưởng tượng.'
-  );
+  const missionText =
+    'Chúng tôi xây dựng một không gian nơi tò mò gặp rõ ràng, nơi mỗi hành tinh có hồ sơ riêng, mỗi nhiệm vụ có nhịp chơi riêng và mỗi lần lướt xuống mở ra một lớp vũ trụ mới.';
+  const secondText =
+    'Ít nhiễu hơn, nhiều chiều sâu hơn, nhiều chuyển động hơn để người chơi hiểu Hệ Mặt Trời bằng cả mắt, tay và trí tưởng tượng.';
   const ctaVideoRef = useRef(null);
 
   useEffect(() => {
@@ -153,13 +183,10 @@ export default function IntroExperience({ onStart }) {
         <h2>
           The platform for <em>meaningful</em> planetary play
         </h2>
-        <div className="mind-video-reveal mind-video-wide" onPointerMove={handleLocalReveal}>
-          <video className="mind-video-base" src={solutionVideo} autoPlay loop muted playsInline />
-          <video className="mind-video-color" src={solutionVideo} autoPlay loop muted playsInline />
-        </div>
         <div className="mind-feature-grid">
-          {features.map(([title, description]) => (
+          {features.map(([icon, title, description]) => (
             <article key={title}>
+              <FeatureIcon type={icon} />
               <h3>{title}</h3>
               <p>{description}</p>
             </article>
@@ -168,8 +195,8 @@ export default function IntroExperience({ onStart }) {
       </section>
 
       <section className="mind-cta" id="cta">
-        <video className="mind-cta-video-base" ref={ctaVideoRef} src={solutionVideo} autoPlay loop muted playsInline />
-        <video className="mind-cta-video-color" src={solutionVideo} autoPlay loop muted playsInline />
+        <video className="mind-cta-video-base" ref={ctaVideoRef} src={ctaVideo} autoPlay loop muted playsInline />
+        <video className="mind-cta-video-color" src={ctaVideo} autoPlay loop muted playsInline />
         <div className="mind-cta-overlay" />
         <div className="mind-cta-content">
           <span className="mind-logo-mark"><i /></span>
@@ -186,14 +213,6 @@ export default function IntroExperience({ onStart }) {
         </div>
       </section>
 
-      <footer className="mind-footer">
-        <p>© 2026 SolarVerse. All rights reserved.</p>
-        <div>
-          <a href="#home">Privacy</a>
-          <a href="#home">Terms</a>
-          <a href="#home">Contact</a>
-        </div>
-      </footer>
     </main>
   );
 }
