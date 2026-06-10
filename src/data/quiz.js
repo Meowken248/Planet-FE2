@@ -1,4 +1,26 @@
 export const quizByPlanet = {
+  sun: [
+    {
+      question: 'Mặt Trời là gì trong Hệ Mặt Trời?',
+      answers: ['Một ngôi sao', 'Một hành tinh đá', 'Một mặt trăng', 'Một sao chổi'],
+    },
+    {
+      question: 'Mặt Trời nằm ở đâu trong Hệ Mặt Trời?',
+      answers: ['Ở trung tâm', 'Sau Sao Hải Vương', 'Giữa Sao Hỏa và Sao Mộc', 'Quay quanh Trái Đất'],
+    },
+    {
+      question: 'Năng lượng của Mặt Trời chủ yếu đến từ quá trình nào?',
+      answers: ['Phản ứng nhiệt hạch', 'Núi lửa phun trào', 'Va chạm thiên thạch', 'Băng tan'],
+    },
+    {
+      question: 'Ánh sáng Mặt Trời mất khoảng bao lâu để tới Trái Đất?',
+      answers: ['Khoảng 8 phút', 'Khoảng 1 giây', 'Khoảng 1 ngày', 'Khoảng 1 năm'],
+    },
+    {
+      question: 'Gió Mặt Trời có thể ảnh hưởng tới thứ gì?',
+      answers: ['Vệ tinh và liên lạc', 'Cây dưới đáy biển', 'Núi lửa trên Sao Kim', 'Vành đai Sao Thổ biến mất'],
+    },
+  ],
   mercury: [
     {
       question: 'Sao Thủy nằm ở vị trí nào so với Mặt Trời?',

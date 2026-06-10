@@ -2,6 +2,7 @@
 const EARTH_ROTATION_HOURS = 23.9345;
 
 const nasaFacts = {
+  sun: { horizonsId: '10', meanRadiusKm: 695700, axialTiltDeg: 7.25, rotationPeriodHours: 609.12, semiMajorAxisAu: 0 },
   mercury: { horizonsId: '199', meanRadiusKm: 2439.7, axialTiltDeg: 0.034, rotationPeriodHours: 1407.6, semiMajorAxisAu: 0.3871 },
   venus: { horizonsId: '299', meanRadiusKm: 6051.8, axialTiltDeg: 177.4, rotationPeriodHours: -5832.5, semiMajorAxisAu: 0.7233 },
   earth: { horizonsId: '399', meanRadiusKm: 6371, axialTiltDeg: 23.44, rotationPeriodHours: 23.9345, semiMajorAxisAu: 1 },
@@ -196,9 +197,34 @@ const planetProfiles = [
   },
 ];
 
+export const sunProfile = {
+  id: 'sun',
+  name: 'Mặt Trời',
+  tagline: 'Ngôi sao trung tâm nuôi dưỡng toàn bộ Hệ Mặt Trời',
+  texture: '/planets/sun.jpg',
+  radius: 2.15,
+  orbit: 0,
+  realisticOrbit: 0,
+  cinematicOrbit: 0,
+  rotationSpeed: 0.12,
+  orbitSpeed: 0,
+  diameter: '1.392.700 km',
+  day: 'Khoảng 25 - 35 ngày Trái Đất',
+  year: 'Trung tâm Hệ Mặt Trời',
+  distance: '0 km',
+  temperature: 'Bề mặt khoảng 5.500 C',
+  description:
+    'Mặt Trời là ngôi sao ở trung tâm Hệ Mặt Trời. Năng lượng của nó tạo ánh sáng, nhiệt và ảnh hưởng đến khí hậu, quỹ đạo cũng như sự sống trên Trái Đất.',
+  facts: ['Ngôi sao trung tâm', 'Chiếm hơn 99,8% khối lượng Hệ Mặt Trời', 'Tạo gió Mặt Trời'],
+  nasa: nasaFacts.sun,
+};
+
 export const planets = planetProfiles.map(withNasaMotion);
 
-export const planetMap = Object.fromEntries(planets.map((planet) => [planet.id, planet]));
+export const planetMap = {
+  sun: sunProfile,
+  ...Object.fromEntries(planets.map((planet) => [planet.id, planet])),
+};
 
 
 

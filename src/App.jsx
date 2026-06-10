@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import SolarSystem from './components/scene/SolarSystem.jsx';
 import CompareStrip from './components/ui/CompareStrip.jsx';
 import ControlPanel from './components/ui/ControlPanel.jsx';
@@ -19,6 +19,7 @@ import WarpTransition from './intro/WarpTransition.jsx';
 import { useSolarStore } from './store/useSolarStore.js';
 
 export default function App() {
+  const backgroundAudioRef = useRef(null);
   const [path, setPath] = useState(window.location.pathname);
   const [phase, setPhase] = useState('loading');
   const uiVisible = useSolarStore((state) => state.uiVisible);
@@ -28,11 +29,38 @@ export default function App() {
   const isProfilePage = Boolean(profilePlanetId);
   const showMainApp = phase === 'main';
 
-  React.useEffect(() => {
+  useEffect(() => {
     const syncPath = () => setPath(window.location.pathname);
     window.addEventListener('popstate', syncPath);
     return () => window.removeEventListener('popstate', syncPath);
   }, []);
+
+  useEffect(() => {
+    if (phase === 'loading') return undefined;
+
+    const audio = backgroundAudioRef.current;
+    if (!audio) return undefined;
+
+    audio.volume = 0.35;
+    audio.loop = true;
+
+    const playAudio = () => {
+      audio.play().catch(() => {
+        // Browsers can block autoplay until the first user interaction.
+      });
+    };
+
+    playAudio();
+    window.addEventListener('pointerdown', playAudio, { once: true });
+    window.addEventListener('keydown', playAudio, { once: true });
+    window.addEventListener('touchstart', playAudio, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', playAudio);
+      window.removeEventListener('keydown', playAudio);
+      window.removeEventListener('touchstart', playAudio);
+    };
+  }, [phase]);
 
   const finishLoading = useCallback(() => {
     setPhase(isProfilePage ? 'main' : 'intro');
@@ -46,6 +74,7 @@ export default function App() {
   return (
     <>
       {phase === 'loading' && <LoadingScreen onComplete={finishLoading} />}
+      <audio ref={backgroundAudioRef} src="/audio/bgaudio.m4a" preload="auto" loop />
       {phase === 'intro' && <IntroExperience onStart={enterSolarSystem} />}
       <WarpTransition active={phase === 'warp'} />
 

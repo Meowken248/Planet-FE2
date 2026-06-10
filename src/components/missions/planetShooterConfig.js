@@ -10,6 +10,7 @@ export const shooterSprites = {
 };
 
 const missionPresets = {
+  sun: { objective: 'Survive the corona ignition zone', targetKills: 30, targetScore: 4600, timeLimit: 90, hazardRate: 1.5, bossHp: 72, pattern: 'flare' },
   mercury: { objective: 'Survive the solar flare belt', targetKills: 22, targetScore: 2600, timeLimit: 78, hazardRate: 1.1, bossHp: 46, pattern: 'flare' },
   venus: { objective: 'Clear the acid cloud front', targetKills: 24, targetScore: 2800, timeLimit: 82, hazardRate: 1.25, bossHp: 50, pattern: 'poison' },
   earth: { objective: 'Defend orbit and remove debris', targetKills: 24, targetScore: 3000, timeLimit: 84, hazardRate: 1, bossHp: 48, pattern: 'debris' },
@@ -63,6 +64,22 @@ export const upgradeTypes = {
 };
 
 export const planetShooterConfig = {
+  sun: withMission('sun', {
+    title: 'Sun Corona Breaker',
+    subtitle: 'Xuyên qua vùng nhật hoa và né bão plasma',
+    background: '/planets/sun.jpg',
+    deepSpace: '/missions/shooter/nasa/space-bg-1.jpg',
+    palette: ['#fff1a8', '#ff9f1c', '#ef4444'],
+    accent: '#fff1a8',
+    enemyColor: '#ffd166',
+    bossColor: '#ef4444',
+    hazardColor: '#fed7aa',
+    shotColors: { scout: '#fff1a8', scoutAlt: '#ffd166', blade: '#ff9f1c', heavy: '#fb7185', boss: '#ef4444' },
+    enemyLabel: 'Plasma wraith',
+    bossName: 'Corona Star Tyrant',
+    terrain: 'solar corona ignition zone',
+    difficulty: 1.5,
+  }),
   mercury: withMission('mercury', {
     title: 'Mercury Solar Run',
     subtitle: 'Vượt qua đá nóng và vệ binh Mặt Trời',

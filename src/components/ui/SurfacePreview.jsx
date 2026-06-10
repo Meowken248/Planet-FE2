@@ -124,10 +124,6 @@ export default function SurfacePreview({ planet }) {
         </Suspense>
       </div>
 
-      <div className="surface-preview-readout">
-        <span>Texture</span>
-        <strong>{planet.texture.replace(/^\//, '')}</strong>
-      </div>
     </div>
   );
 }

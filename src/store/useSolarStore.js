@@ -1,6 +1,7 @@
 ﻿import { create } from 'zustand';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const COMPLETION_PLANET_IDS = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
 
 const createLog = (message) => ({
   id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -306,10 +307,11 @@ export const useSolarStore = create((set) => ({
       }
 
       if (state.game.questionIndex >= 4) {
-        const completedPlanetIds = Array.from(
-          new Set([...state.game.completedPlanetIds, activePlanetId])
-        );
-        const status = completedPlanetIds.length >= 8 ? 'complete' : 'playing';
+        const completedPlanetIds = activePlanetId === 'sun'
+          ? state.game.completedPlanetIds
+          : Array.from(new Set([...state.game.completedPlanetIds, activePlanetId]));
+        const completedCount = completedPlanetIds.filter((id) => COMPLETION_PLANET_IDS.includes(id)).length;
+        const status = completedCount >= COMPLETION_PLANET_IDS.length ? 'complete' : 'playing';
 
         return {
           game: {
@@ -453,10 +455,11 @@ export const useSolarStore = create((set) => ({
     },
   })),
   completeShooterMission: (planetId) => set((state) => {
-    const completedPlanetIds = Array.from(
-      new Set([...state.game.completedPlanetIds, planetId])
-    );
-    const status = completedPlanetIds.length >= 8 ? 'complete' : 'playing';
+    const completedPlanetIds = planetId === 'sun'
+      ? state.game.completedPlanetIds
+      : Array.from(new Set([...state.game.completedPlanetIds, planetId]));
+    const completedCount = completedPlanetIds.filter((id) => COMPLETION_PLANET_IDS.includes(id)).length;
+    const status = completedCount >= COMPLETION_PLANET_IDS.length ? 'complete' : 'playing';
 
     return {
       game: {

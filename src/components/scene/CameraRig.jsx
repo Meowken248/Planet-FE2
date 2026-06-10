@@ -136,7 +136,13 @@ export default function CameraRig() {
     const selected = planetMap[followingPlanetId];
     const planetPosition = useSolarStore.getState().planetPositions[followingPlanetId];
 
-    if (selected && planetPosition) {
+    if (followingPlanetId === 'sun') {
+      const cinematicDrift = Math.sin(clock.elapsedTime * 0.16) * 0.18;
+      const focusAngle = 0.42 + cinematicDrift;
+      viewDirection.set(Math.cos(focusAngle), 0, Math.sin(focusAngle)).normalize();
+      target.set(0, -0.8, 0);
+      desiredPosition.set(viewDirection.x * 9.8, 3.6, viewDirection.z * 9.8);
+    } else if (selected && planetPosition) {
       const visualRadius = selected.radius * 1.55;
       const focusDistance = Math.max(4.2, visualRadius * 4.15);
       const focusHeight = Math.max(1.15, visualRadius * 0.92);

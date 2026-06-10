@@ -1,8 +1,20 @@
 import React from 'react';
-import { useTexture } from '@react-three/drei';
+import { Html, useTexture } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { useSolarStore } from '../../store/useSolarStore.js';
+
+const PROFILE_NAV_DELAY_MS = 6400;
+let pendingSunProfileTimer = 0;
+
+const openSunProfile = () => {
+  window.clearTimeout(pendingSunProfileTimer);
+  pendingSunProfileTimer = window.setTimeout(() => {
+    window.history.pushState({}, '', '/planet/sun');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }, PROFILE_NAV_DELAY_MS);
+};
 
 const sunVertexShader = `
   varying vec2 vUv;
@@ -115,6 +127,16 @@ export default function Sun() {
   const sunRef = useRef();
   const heatShellRef = useRef();
   const texture = useTexture('/planets/sun.jpg');
+  const selectPlanet = useSolarStore((state) => state.selectPlanet);
+  const selectedPlanetId = useSolarStore((state) => state.selectedPlanetId);
+  const showLabels = useSolarStore((state) => state.showLabels);
+  const isSelected = selectedPlanetId === 'sun';
+
+  const handleOpenProfile = (event) => {
+    event.stopPropagation();
+    selectPlanet('sun');
+    openSunProfile();
+  };
 
   const sunMaterial = useMemo(
     () =>
@@ -163,12 +185,32 @@ export default function Sun() {
     <group>
       <pointLight color="#fff2c7" intensity={560} distance={190} decay={1.45} />
       <pointLight color="#ffb45f" intensity={34} distance={34} decay={1.2} />
-      <mesh ref={sunRef} material={sunMaterial}>
+      <mesh
+        ref={sunRef}
+        material={sunMaterial}
+        onClick={handleOpenProfile}
+      >
         <sphereGeometry args={[2.15, 128, 128]} />
       </mesh>
-      <mesh ref={heatShellRef} material={heatShellMaterial}>
+      <mesh
+        ref={heatShellRef}
+        material={heatShellMaterial}
+        onClick={handleOpenProfile}
+      >
         <sphereGeometry args={[2.34, 128, 128]} />
       </mesh>
+      {showLabels && (
+        <Html
+          position={[0, 3.25, 0]}
+          center
+          distanceFactor={10}
+          className={`planet-label ${isSelected ? 'is-selected' : ''}`}
+        >
+          <button type="button" onClick={handleOpenProfile}>
+            Mặt Trời
+          </button>
+        </Html>
+      )}
     </group>
   );
 }

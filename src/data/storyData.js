@@ -1,4 +1,13 @@
 export const stories = {
+  sun: {
+    title: 'Trái Tim Rực Cháy',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Solar_sys8.jpg',
+    content: [
+      'Ở trung tâm mọi quỹ đạo, Mặt Trời cháy như một trái tim khổng lồ. Từ đó, ánh sáng tràn ra, đánh thức những thế giới đá, băng và khí đang xoay quanh trong bóng tối.',
+      'Bên trong lõi sao, hydrogen hợp nhất thành helium và giải phóng nguồn năng lượng đủ để nuôi cả Hệ Mặt Trời. Mỗi tia sáng đi đến Trái Đất như một thông điệp mất khoảng tám phút vượt qua không gian.',
+      'Nhưng Mặt Trời không chỉ dịu dàng. Nó có gió sao, bão từ và những lần phun trào plasma dữ dội. Kẻ du hành nào đến gần vùng nhật hoa đều phải hiểu rằng mình đang bay cạnh một vị thần bằng lửa.'
+    ]
+  },
   mercury: {
     title: 'Hơi Thở Lửa Của Thần',
     image: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Mercury_in_true_color.jpg',
